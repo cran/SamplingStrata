@@ -18,7 +18,7 @@ if (!is.null(strata)) {
 	if (sum(grepl("COST",toupper(colnames(strata)),fixed=TRUE)) < 1) 
 		stop("In strata dataframe the indication of interviewing cost in strata (COST) is missing")
 	if (sum(grepl("M1",toupper(colnames(strata)),fixed=TRUE)) < 1) 
-		stop("In strata dataframe the indication of at least Ine mean (M1) is missing")
+		stop("In strata dataframe the indication of at least one mean (M1) is missing")
 	if (sum(grepl("S1",toupper(colnames(strata)),fixed=TRUE)) < 1) 
 		stop("In strata dataframe the indication of at least one standard deviation (S1) is missing")
 	if (sum(grepl("M+[0123456789]",toupper(colnames(strata)),perl=TRUE)) != sum(grepl("S+[0123456789]",toupper(colnames(strata)),perl=TRUE))+1) 
@@ -27,7 +27,7 @@ if (!is.null(strata)) {
 # controls on errors dataframe
 if (!is.null(errors)) {
 	if (sum(grepl("DOM",toupper(colnames(errors)),fixed=TRUE)) < 1) 
-		stop("In errors dataframe the indicatiIn of domain (DOM) is missing")
+		stop("In errors dataframe the indication of domain (DOM) is missing")
 	if (sum(grepl("CV",toupper(colnames(errors)),fixed=TRUE)) < 1) 
 		stop("In errors dataframe the indication of at least one constraint (CV) is missing")
   }

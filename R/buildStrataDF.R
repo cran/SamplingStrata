@@ -1,15 +1,26 @@
 buildStrataDF <- function (dataset) 
 {
-    stdev <- function(x, w) {
+# stdev1 is for sampling data
+    stdev1 <- function(x, w) {
         mx <- sum(x * w)/sum(w)
-        sqrt(sum(w * (x - mx)^2)/(sum(w) - 1))
+        sqrt(sum(w * (x - mx)^2)/(sum(w)-1))
+    }
+# stdev2 is for population data
+    stdev2 <- function(x, w) {
+        mx <- sum(x * w)/sum(w)
+        sqrt(sum(w * (x - mx)^2)/(sum(w)))
     }
     colnames(dataset) <- toupper(colnames(dataset))
     nvarX <- length(grep("X", names(dataset)))
     nvarY <- length(grep("Y", names(dataset)))
-    if (length(grep("WEIGHT", names(dataset))) == 0) {
+    if (length(grep("WEIGHT", names(dataset))) == 1) {
+        cat("\nComputations have been done on sampling data\n")
+		stdev <- "stdev1"
+    }
+	if (length(grep("WEIGHT", names(dataset))) == 0) {
         dataset$WEIGHT <- rep(1, nrow(dataset))
-        warning("A column WEIGHT (all 1's) has been added to data")
+		stdev <- "stdev2"
+        cat("\nComputations have been done on population data\n")
     }
 	numdom <- length(levels(as.factor(dataset$DOMAINVALUE)))
 	stratatot <- NULL
@@ -56,9 +67,9 @@ buildStrataDF <- function (dataset)
             "),]", sep = "")
         eval(parse(text = stmt))
         l.split <- split(samp, samp$STRATO, drop = TRUE)
-        stmt <- paste("S", i, " <- sapply(l.split, function(df,x,w) stdev(df[,x],df[,w]), x='Y", 
+		stmt <- paste("S", i, " <- sapply(l.split, function(df,x,w) ",stdev,"(df[,x],df[,w]), x='Y", 
             i, "', w='WEIGHT')", sep = "")
-        eval(parse(text = stmt))
+		eval(parse(text = stmt))
         stmt <- paste("stratirid <- unlist(attr(M", i, ",'dimnames'))", 
             sep = "")
         eval(parse(text = stmt))
@@ -104,5 +115,6 @@ buildStrataDF <- function (dataset)
 	}  # end domain cycle
     write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t", 
         dec = ".", row.names = FALSE)
+	stratatot <- read.delim("strata.txt")
 	return(stratatot)
 }
