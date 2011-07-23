@@ -1,0 +1,407 @@
+%\VignetteIndexEntry{Optimization of sampling strata with the SamplingStrata package}
+\documentclass{article}
+
+\usepackage{natbib}
+\usepackage{graphics}
+\usepackage{amsmath}
+\usepackage{indentfirst}
+\usepackage[utf8]{inputenc}
+\usepackage{makeidx}
+\makeindex
+
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\cov}{cov}
+
+% \VignetteIndexEntry{SamplingStrata example}
+
+\begin{document}
+<<foo,include=FALSE,echo=FALSE>>=
+options(keep.source = TRUE, width = 60)
+foo <- packageDescription('SamplingStrata')
+@
+\title{Optimization of sampling strata with the {\tt SamplingStrata} package \\
+{\small Package version \Sexpr{packageVersion("SamplingStrata")}}}
+\author{Giulio Barcaroli}
+\maketitle
+
+\begin{abstract}
+\emph {So far, in stratified random sampling the problem of determining the optimal size and allocation of units in strata has been solved 
+by considering the stratification of the population as given. Conversely, the definition of the optimal stratification of a sampling frame 
+for a given survey has been investigated without choosing, as objective function, the sampling size required to satisfy given precision
+ constraints on the parameters of interest of a given survey. This package allows the determination of the best stratification of a target 
+ population, the one that ensures the minimum sample size (or the minimum fieldwork and interviewing costs) so to satisfy precision 
+ constraints in a multivariate and multidomain case.  The underlying algorithm is based on a non deterministic evolutionary approach, 
+ making use of the genetic algorithm paradigm.} 
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+ 
+\section {Introduction}
+Let us suppose we need to design a sample survey, having a complete frame containing information on the target population 
+(identifiers plus auxiliary information). If our sample design is a stratified one, we need to choose how to form strata in 
+the population, in order to get the maximum advantage by the available auxiliary information. In other words, we have to decide 
+in which way to combine the values of the auxiliary variables (from now on, the 'X' variables) in order to determine a new variable, 
+called 'stratum'. To do so, we have to take into consideration the target variables of our sample surveys (from now on, the 'Y' 
+variables): if, to form strata, we choose the X variables most correlated to the Ys, the efficiency of the samples drawn by the 
+resulting stratified frame may be greatly increased. In order to handle the whole auxiliary information in a homogenous way, we have 
+to reduce continuous data to categorical (by mean of a k-means clustering technique, for example). Then, for every set of candidate 
+auxiliary variables Xs, we have to decide (i) what variables to consider as active variables in strata determination, and (ii) 
+for each active variable, what set of values (in general, what aggregation of atomic values) have to be considered. 
+Every combination of values of each active variable determine a particular stratification of the target population, i.e. 
+a possible solution to the problem of 'best' stratification. Here, by best stratification, we mean the stratification that ensures 
+the minimum sample size, sufficient to satisfy a set of precision constraints, set on the accuracy of the estimates of the survey target 
+variables Ys (constraints expressed as maximum allowable sampling variance on estimates in different domains of interest).
+Therefore, the validity of a particular stratification can be measured by the associated minimum size of a sample, whose estimates 
+are expected to satisfy given accuracy levels. This minimum size can be determined by applying the Bethel algorithm, with its Chromy 
+variant. In general, the number of possible alternative stratifications for a given population may be very high, depending on 
+the number of variables and on the number of their values, and in these cases it is not possible to enumerate them in order to assess 
+the best one. A very convenient solution to this, is the adoption of the evolutionary approach, consisting in applying a 
+genetic algorithm that may converge towards a near-optimal solution after a finite number of iterations.
+
+\section {Procedural steps}
+The optimization of the sampling design starts by making the sampling frame available, defining the target estimates of the 
+survey and establishing the precision constraints on them. It is then prossible to determine the best stratification and the 
+optimal allocation. Finally, we proceed with the selection of the sample.
+Formalising, these are the required steps:
+\begin{enumerate}
+\item	analysis of the frame data: identification of available auxiliary information;
+\item	manipulation of auxiliary information: in case auxiliary variables are of the continuous type, they must be transformed into 
+a categorical form;
+\item	construction of atomic strata: on the basis of the categorical auxiliary variables available in the sampling frame, 
+a set of strata can be constructed by calculating the Cartesian product of the values of all the auxiliary variables;
+\item	characterization of each atomic stratum with the information related to the target variables: in order to optimise 
+both strata and allocation of sampling units in strata, we need information on the distributions of the target variables 
+(means and standard deviations);
+\item	choice of the precision constraints for each target estimate, possibly differentiated by domain;
+\item	optimization of stratification and determination of required sample size and allocation in order to satisfy precision 
+constraints on target estimates;
+\item	analysis of the resulting optimized strata;
+\item	association of new labels to sampling frame units, each of them indicating the new strata resulting by the optimal 
+aggregation of the atomic strata;
+\item	selection of units from the sampling frame with a \emph {stratified random sample} selection scheme.
+\end{enumerate} 
+In the following, we will illustrate each step starting from a real sampling frame, the one that comes with the R package 
+{\tt sampling} (the dataframe {\tt swissmunicipalities}).
+
+\section {Steps 1 and 2: analysis of the frame data and manipulation of auxiliary information}
+As a first step, we have to define a frame dataframe containing the following information:
+\begin{itemize}
+\item	a unique identifier of the unit (no restriction on the name, may be 'cod');
+\item	the (optional) identifier of the stratum to which the unit belongs;
+\item	the values of m auxiliary variables (named from X1 to Xm);
+\item	the (optional) values of p target variables (named from Y1 to Yp);
+\item	the value of the domain of interest for which we want to produce estimates (named 'domainvalue').
+\end{itemize} 
+
+By typing the following statement in the R environment:
+<<frame1>>=
+library(sampling)
+data(swissmunicipalities)
+@
+we get the {\tt swissmunicipalities} dataframe, that contains 2896 observations (each observation refers to a Swiss municipality). 
+Among the others, there are the following variables (data are referred to 2003):
+\begin{itemize}
+\item REG: Swiss region.
+\item Nom: municipality name.
+\item Surfacesbois: wood area.
+\item Surfacescult: area under cultivation.
+\item Alp: mountain pasture area.
+\item Airbat: area with buildings.
+\item Airind: industrial area.
+\item Pop020: number of men and women aged between 0 and 19.
+\item Pop2040: number of men and women aged between 20 and 39.
+\item Pop4065: number of men and women aged between 40 and 64.
+\item Pop65P: number of men and women aged between 65 and over.
+\item POPTOT: total population.
+\end{itemize} 
+First, we define the identifier of the frame:
+<<frame2>>=
+swissframe <- NULL
+swissframe$id <- swissmunicipalities$Nom
+@
+Let us suppose we want to plan a survey whose target estimates are the totals of population by age class in each Swiss region. 
+In  this case, our Ys variables will be:
+\begin{itemize}
+\item Y1: number of men and women aged between 0 and 19.
+\item Y2: number of men and women aged between 20 and 39.
+\item Y3: number of men and women aged between 40 and 64.
+\item Y4: number of men and women aged between 65 and over.
+\end{itemize} 
+So we execute the following statements:
+<<frame3>>=
+swissframe$Y1 <- swissmunicipalities$Pop020
+swissframe$Y2 <- swissmunicipalities$Pop2040
+swissframe$Y3 <- swissmunicipalities$Pop4065
+swissframe$Y4 <- swissmunicipalities$Pop65P
+@
+As for the auxiliary variables (Xs), we can use all of those characterising the area use (wood, mountain or pasture, cultivated, 
+industrial, with buildings). As these variables are of the continuous type, first we have to reduce them in a categorical (ordinal) 
+form. A suitable way to do so, is to apply a k-means clustering method (available in {\tt Rcmdr} package):
+<<frame4>>=
+library(Rcmdr)
+swissframe$X1 <- bin.var(swissmunicipalities$POPTOT, bins=18, method='natural',labels=c('1','2','3','4','5','6','7','8','9','10','11',  '12','13','14','15','16','17','18'))
+swissframe$X2 <- bin.var(swissmunicipalities$Surfacesbois, bins=3, method='natural', labels=c('1','2','3'))
+swissframe$X3 <- bin.var(swissmunicipalities$Surfacescult, bins=3, method='natural', labels=c('1','2','3'))
+swissframe$X4 <- bin.var(swissmunicipalities$Alp, bins=3, method='natural', labels=c('1','2','3'))
+swissframe$X5 <- bin.var(swissmunicipalities$Airbat, bins=3, method='natural', labels=c('1','2','3'))
+swissframe$X6 <- bin.var(swissmunicipalities$Airind, bins=3, method='natural', labels=c('1','2','3'))
+@
+Now, we have six different auxiliary variables of the categorical type, the first with 18 different modalities, the others 
+with 3 modalities.
+Finally, we have to set the values of the 'domainvalue' variable, which is mandatory. As we want to obtain estimates for each region, 
+we set:
+<<frame5>>=
+swissframe$domainvalue <- swissmunicipalities$REG
+swissframe <- data.frame(swissframe)
+@
+Now, the {\tt swissframe} dataframe looks like this way:
+<<frame6>>=
+head(swissframe)
+@
+that is the format required by the package. 
+We write the dataframe to a tab delimited file:
+<<frame6>>=
+write.table (swissframe, 'swissframe.txt', row.names=FALSE, col.names=TRUE, sep='\t', quote=FALSE)
+@
+In any case, this dataframe comes with the package {\tt SamplingStrata}: it can be made available by executing:
+<<frame7>>=
+library(SamplingStrata)
+data(swissframe)
+head(swissframe)
+@
+
+\section{Construction of atomic strata and association of the information related to target variables (steps 3 and 4)}
+
+The {\tt strata} dataframe reports information regarding each stratum in the population. There is one row for each stratum. 
+The total number of strata is given by the number of different combinations of Xs values in the frame. 
+For each stratum, the following information is required:
+\begin{enumerate}
+\item	the identifier of the stratum (named 'stratum' or 'strato'), concatenation of the values of the Xs variables;
+\item	the values of the m auxiliary variables (named from X1 to Xm) corresponding to those in the frame;
+\item	the total number of units in the population (named 'N');
+\item	a flag (named 'cens') indicating if the stratum is to be censused (=1) or sampled (=0);
+\item	a variable indicating the cost of interviewing per unit in the stratum (named 'cost');
+\item	for each target variable y, its mean and standard deviation, named respectively 'Mi' and 'Si')
+\item	the value of the domain of interest to which the stratum belongs (named 'DOM1' and corresponding to variable 'domainvalue' in the frame dataframe).
+\end{enumerate}
+For example:
+<<frame8>>=
+data(strata)
+head(strata)
+@
+If in the {\tt frame} dataframe are also present the values of the target Y variables (from a census, or from administrative data), 
+it is possible to automatically generate the {\tt strata} dataframe by invoking the {\tt buildStrataDF} function.
+Let us consider again the {\tt swissframe} dataframe that we have in built in previous steps. First, we have to read it from the 
+external file that we had created:
+<<frame9>>=
+frame <- read.delim('swissframe.txt')
+@
+Then we can execute the function:
+<<frame10>>=
+swissstrata <- buildStrataDF(swissframe)
+@
+The function takes as unique argument the name of the frame, and also writes out in the working directory the strata file, 
+always named 'strata.txt'.
+This is the structure of the created dataframe:
+<<frame11>>=
+str(swissstrata)
+@
+It is worth while to note that the total number of different atomic strata is 641, lower than the dimension of the Cartesian 
+product of the Xs (which is 4374): this is due to the fact that not all combinations of the value of the auxiliary variables 
+are present in the sampling frame.
+Variables 'cost' and 'cens' are initialised respectively to 1 and 0 for all strata. It is possible to give them different values:
+\begin{enumerate}
+\item	for variable 'cost', it is possible to differentiate the cost of interviewing per unit by assigning real values;
+\item	for variable 'cens', it is possible to set it equal to 1 for all strata that are of the 'take-all' type (i.e. all units in 
+that strata must be selected).
+\end{enumerate}
+The {\tt swissstrata} dataframe comes together with {\tt SamplingStrata} package, it can be made available by typing:
+<<frame12>>=
+data(swissstrata)
+@
+On the contrary, if there is no information in the frame regarding the target variables, it is necessary to build the strata 
+dataframe starting from other sources, for instance a previous round of the same survey, or from other surveys.
+In this case, we need to read sample data by executing:
+<<frame13,eval=FALSE>>=
+samp <- read.delim('samplePrev.txt')
+@
+The only difference is that computed mean and variances of the Ys are sampling estimates, whose reliability should be evaluated 
+by carefully considering their sampling variances. In addition to the naming constraints previously introduced, this case requires 
+that a variable named 'WEIGHT' is present in the samp dataframe.
+Then we can execute this function in this way:
+<<frame14,eval=FALSE>>=
+strata <- buildStrataDF(samp)
+@
+The result is much the same than in the previous case: the function creates a new dataframe, {\tt strata}, and writes out in the working 
+directory the strata file, named 'strata.txt'.
+
+\em Note that in all cases, for each target variable Y, mean and standard deviation are calculated excluding NAs. 
+\normalfont
+
+\section{Choice of the precision constraints for each target estimate (step 5)}
+
+The {\tt errors} dataframe contains the accuracy constraints that are set on target estimates. 
+This means to define a maximum coefficient of variation for each variable and for each domain value. 
+Each row of this frame is related to accuracy constraints in a particular subdomain of interest, identified by the DOM1 value.
+In the case of the Swiss municipalities, we have chosen to define the following constraints:
+<<frame15>>=
+data(swisserrors)
+swisserrors
+@
+This example reports accuracy constraints on variables Y1, Y2, Y3 and Y4 that are the same for all the 7 different subdomains 
+(Swiss regions) of domain level DOM1. Of course we can differentiate the precision constraints region by region. 
+It is important to underline that the values of 'domainvalue' are the same than those in the frame dataframe, and correspond 
+to the values of variable 'DOM1' in the strata dataframe.
+Once having defined dataframes containing frame data, strata information and precision constraints, it is worth while to check
+their internal and reciprocal coherence. It is possible to do that by using the function {\tt checkInput}: 
+<<frame15a>>=
+checkInput(swisserrors,swissstrata,swissframe)
+@
+For instance, this function controls that the number of auxiliary variables is the same in the {\tt frame} and in the 
+{\tt strata} dataframes; 
+that the number of target variables indicated in the {\tt frame} dataframe is the same than the number of means and standard deviations in
+the {\tt strata} dataframe, and the same than the number of coefficient of variations indicated in the {\tt errors} dataframe.
+
+If we try to determine the total size of the sample required to satisfy these precision constraints, considering the current 
+stratification of the frame (the 641 atomic strata), we can do it by simply using the function  {\tt bethel}. 
+This function requires a slightly different specification of the constraints dataframe, that is contained in the {\tt errors.chk} dataframe:
+<<frame16>>=
+data(swisserrors.chk)
+swisserrors.chk
+@
+This is a more compact way to report the precision constraints for all subdomains. Of course, it does not permit to differentiate 
+them by subdomain. In any case, the result of the application of the Bethel algorithm is:
+<<frame17>>=
+sum(bethel(swissstrata,swisserrors.chk))
+@
+That is, the required amount of units to be selected, with no optimization of sampling strata. 
+In general, after the optimization, this number is sensibly reduced.
+
+\section{Optimisation of frame stratification (step 6)}
+Once the strata and the constraints dataframes have been prepared, it is possible to apply the function that optimises the 
+stratification of the frame, that is {\tt optimizeStrata}. This function operates on all subdomains, identifying the best solution 
+for each one of them.
+The fundamental parameters to be passed to optimizeStrata are:
+\begin{enumerate}
+\item	{\tt errors}: the (mandatory) dataframe containing the precision levels expressed in terms of maximum allowable 
+coefficients of variation that regard the estimates on target variables Ys of the survey
+\item	{\tt strata}: the (mandatory) dataframe containing the information related to 'atomic' strata, i.e. the strata obtained by the 
+Cartesian product of all auxiliary variables Xs. Information concerns the identifiability of strata (values of Xs) and variability 
+of Ys (for each Y, mean and standard error in strata) 
+\item	{\tt cens}: the (optional) dataframe containing the takeall strata, those strata whose units must be selected in whatever sample. 
+It has same structure than {\tt strata} dataframe 
+\item	{\tt strcens}: flag (TRUE/FALSE) to indicate if takeall strata do exist or not. Default is FALSE 
+\item	{\tt initialStrata}: the initial limit on the number of strata for each solution. Default is 3000 
+\item	{\tt addStrataFactor}: this parameter indicates the probability that at each mutation the number of strata may increase with respect 
+to the current value. Default is 0.01 
+\item	{\tt minnumstr}: indicates the minimum number of units that must be allocated in each stratum. Default is 2 
+\item {\tt iter} Indicated the maximum number of iterations (= generations) of the genetic algorithm. Default is 20 
+\item {\tt pops} The dimension of each generations in terms of individuals. Default is 50 
+\item	{\tt mut\_chance} (mutation chance): for each new individual, the probability to change each single chromosome, i.e. one bit of the 
+solution vector. High values of this parameter allow a deeper exploration of the solution space, but a slower convergence, while low 
+values permit a faster convergence, but the final solution can be distant from the optimal one. Default is 0.05 
+\item	{\tt elitism\_rate}: this parameter indicates the rate of better solutions that must be preserved from one generation to another. 
+Default is 0.2 (20 
+\item	{\tt highvalue}: parameter for genetic algorithm. Its default value should not be changed 
+\item	{\tt suggestions}: optional parameter for genetic algorithm that indicates one possible solution (maybe from previous runs) that 
+will be introduced in the initial population. Default is NULL.
+\end{enumerate}
+In the case of the Swiss municipalities, this is a possible choice of the value of the parameters:
+<<frame18>>=
+outstrata <- optimizeStrata(
+	errors = swisserrors, 
+	strata = swissstrata, 
+	cens = NULL, 
+	strcens = FALSE, 
+	initialStrata = 3000, 
+	addStrataFactor = 0.00, 
+	minnumstr = 2, 
+	iter = 5, 
+	pops = 5, 
+	mut_chance = 0.05, 
+	elitism_rate = 0.2,
+	highvalue = 1e+08, 
+	suggestions = NULL
+)
+@
+The execution of {\tt optimizeStrata} produces the solution of 7 different optimization problems, one for each domain (see fig.1). 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.900\textwidth]{executionplot}
+\caption{this graph illustrates the convergence of the solution to the final one starting from the initial one (i.e. the
+one related to the atomic strata). Along the x-axis are reported the executed iterations, from 1 to 20, while on the y-axis are
+reported the size of the sample required to satisfy precision constraints. The upper (red) line represent the average sample size 
+for each iteration, while the lower (black) line represents the best solution found until the i-th iteration.}
+\label{graph1}
+\end{figure}
+
+\section{Analysis of results (step 7)}
+Once the optimisation has been carried out, it is important to analyse the structure of the new strata. 
+By using the function {\tt verify} it is possible (i) to perform a graphical inspection and (ii) to verify how the allocation of units 
+in the new strata ensures the compliance of accuracy constraints in the different domains for the whole set of target variables.
+By executing:
+<<frame19,eval=FALSE>>=
+data(swisserrors.chk)
+allocation <- verify(swisserrors.chk,outstrata)
+sum(allocation)
+@
+we will obtain first a graph containing the distribution of strata by numerosity in the different subdomains (see fig.2). 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.900\textwidth]{distributionplot}
+\caption{in this graph along the x-axis are reported the different domains (regions), for each of which are listed the
+associated strata, with the corresponding allocation (reported on the y-axis).}
+\label{graph2}
+\end{figure}
+ 
+In this graph, it is possible to click on the different points and, after stopping the identification, selected strata are 
+presented in an edit  window for the inspection.
+We obtain also the the list of domain levels, domain values and variables, and related planned and expected CV, 
+together with the 'sensitivity' (the expected saving in sample size if the CV is relaxed of a 10%). 
+This list relates only to the national level, as with the dataframe errors.chk  we do not refer to the different domains (regions), 
+as we do with the dataframe {\tt errors}.
+Moreover, we want also to analyse what kind of aggregation of the atomic strata the genetic algorithm did produce. 
+To do so, we apply the function {\tt updateStrata}, that assigns the labels of the new strata to the initial one in the dataframe 
+{\tt strata}, and produces: 
+\begin{enumerate}
+\item	a new file named 'newstrata.txt' containing all the information in the strata dataframe, plus the labels of the new strata;
+\item	a table, contained in the dataset 'strata\_aggregation.txt', showing in which way the auxiliary variables Xs determine the 
+new strata.
+\end{enumerate}
+The function is invoked in this way:
+<<frame20>>=
+newstrata <- updateStrata(swissstrata)
+@ 
+
+\section{Updating the frame and selecting the sample (steps 8 and 9)}
+Once the optimal stratification has been obtained, to be operational we need to accomplish the following two steps:
+\begin{enumerate}
+\item	to update the frame units with new stratum labels (combination of the new values of the auxiliary variables Xs);
+\item	to select the sample from the frame.
+\end{enumerate}
+As for the first, we execute the following command:
+<<frame21>>=
+framenew <- updateFrame(swissframe,newstrata)
+@ 
+The function {\tt updateFrame} receives as arguments the indication of the dataframe in which the frame information is memorised, 
+and of the dataframe produced by the execution of the {\tt updateStrata} function.
+The execution of this function produces a dataframe {\tt framenew}, and also a file (named 'framenew.txt') with the labels of the new 
+strata produced by the optimisation step.
+The allocation of units is contained in the 'soluz' column of the dataset 'outstrata.txt'. At this point it is possible to select the 
+sample from the new version of the frame:
+<<frame22>>=
+sample <- selectSample(framenew,outstrata)
+@  
+that produces two .csv files:
+\begin{enumerate}
+\item	'sample.csv' containing the units of the frame that have been selected, together with the weight that has been calculated 
+for each one of them;
+\item	'sample.chk.csv' containing information on the selection: for each stratum, the number of units in the population, 
+the planned sample, the number of selected units, the sum of their weights that must equalise the number of units in the population.
+\end{enumerate}
+
+\end{document}

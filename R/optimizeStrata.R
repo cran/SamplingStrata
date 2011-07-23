@@ -8,6 +8,8 @@ optimizeStrata <- function (
     strata , 
     cens = NULL,
     strcens = FALSE,
+	alldomains = TRUE,
+	dom = NULL,
     initialStrata = 3000,
     addStrataFactor = 0.01,    
     minnumstr = 2,
@@ -19,8 +21,6 @@ optimizeStrata <- function (
     suggestions = NULL,
     writeFile = "YES")
 { 
-#vettmaxstrata <- c(13,7,7,19,7,17,13,11,10,7,25,7,10,19,25,11,19,32,13,7,12)
-#sink("results.txt") 
 # Check
 #checkInput(errors,strata)             
 #--------------------------------------------------------------------------
@@ -30,6 +30,8 @@ erro <- split(errors,list(errors$domainvalue))
 stcamp <- split(strata,list(strata$DOM1))
 if (strcens == TRUE) stcens <- split(cens,list(cens$DOM1))
 ndom <- length(levels(as.factor(strata$DOM1)))
+# begin alldomains = TRUE
+if (alldomains == TRUE) {
 for (i in 1:ndom) {
   erro[[i]] <- erro[[i]][,-ncol(errors)]
   if (strcens == TRUE) cens <- stcens[[i]]
@@ -54,6 +56,7 @@ for (i in 1:ndom) {
   }
 
 outstrata <- read.delim("outstrata1.txt")
+out <- NULL
 if (ndom > 1) {
   for (i in 2:ndom) {
     statement <- paste('out<-read.delim("outstrata',i,'.txt")',sep="")
@@ -61,13 +64,37 @@ if (ndom > 1) {
     outstrata <- rbind(outstrata,out)
     }
   }
-#soluz <- bethel(
-#         	errors,
-#        	outstrata,
-#        	minnumstr,
-#			printa=T
-#         	)
-#risulta <- cbind(outstrata,soluz)
+}
+# end alldomains = TRUE
+# begin alldomains = FALSE
+if (alldomains == FALSE) {
+  if (dom < 1 | dom > ndom) stop ("\nInvalid value of the indicated domain\n")
+  i <- dom
+  erro[[i]] <- erro[[i]][,-ncol(errors)]
+  if (strcens == TRUE) cens <- stcens[[i]]
+#  statement <- paste("solut <- read.table('solutionNew",i,".txt',header=TRUE)",sep="")
+#  eval(parse(text=statement))
+#  sugg <- matrix(solut$stratonew,nrow=20,ncol=nrow(solut),byrow=TRUE)
+  strataGenalg (errors=erro[[i]],
+                strata=stcamp[[i]],
+                cens=cens,
+                strcens,
+                dominio=i,
+                initialStrata,
+                minnumstr,
+                iter,
+                pops,
+                mut_chance,
+                elitism_rate,
+                addStrataFactor,
+                highvalue,
+                suggestions
+                )
+  stmt <- paste("outstrata <- read.delim('outstrata",i,".txt",sep="")
+  eval(parse(text=stmt))
+  }
+
+# end alldomains = FALSE
 dimens <- sum(outstrata$soluz)
 if (writeFile == "YES") write.table(outstrata,file="outstrata.txt",sep="\t",row.names=FALSE,col.names=TRUE,quote=FALSE)
 cat("\n *** Sample size : ",dimens)

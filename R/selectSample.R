@@ -38,8 +38,8 @@ selectSample <- function(
         chk <- data.frame(domainvalue=d,strato=strataord$strato,Nh_frame=as.vector(table(listaord$strato)),Nh_strata=strataord$N,planned_units=strataord$soluz,selected_units=as.vector(table(samp$strato)),sum_of_wgts=tapply(samp$weights,samp$strato,sum))
 		chktot <- rbind(chktot,chk)
 	}  # end domain cycle
-  if (writeFile == "YES") write.table(samptot,"sample.xls",sep="\t",row.names=FALSE,col.names=TRUE,quote=FALSE)
-  if (writeFile == "YES") write.table(chktot,"sampling check.xls",sep="\t",row.names=FALSE,col.names=TRUE,quote=FALSE)
+  if (writeFile == "YES") write.table(samptot,"sample.csv",sep=",",row.names=FALSE,col.names=TRUE,quote=FALSE)
+  if (writeFile == "YES") write.table(chktot,"sampling check.csv",sep=",",row.names=FALSE,col.names=TRUE,quote=FALSE)
   return(samptot)
 }  
 

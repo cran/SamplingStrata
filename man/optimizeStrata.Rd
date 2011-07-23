@@ -12,7 +12,9 @@ This function runs a set of other functions to optimise the stratification of a 
 	errors , 
 	strata , 
 	cens = NULL, 
-	strcens = FALSE, 
+	strcens = FALSE,
+	alldomains = TRUE,
+	dom = NULL,	
 	initialStrata = 3000, 
 	addStrataFactor = 0.01, 
 	minnumstr = 2, 
@@ -41,6 +43,14 @@ This function runs a set of other functions to optimise the stratification of a 
 }
   \item{strcens}{
   Flag (TRUE/FALSE) to indicate if takeall strata do exist or not. Default is FALSE
+}
+  \item{alldomains}{
+  Flag (TRUE/FALSE) to indicate if the optimization must be carried out on all domains (default is TRUE). If it is set to FALSE,
+  then a value must be given to parameter 'dom'
+}
+  \item{dom}{
+  Indicates the domain on which the optimization must be carried. It is an integer value that has to be internal to the interval 
+  (1 <--> number of domains). If 'alldomains' is set to TRUE, it is ignored
 }
   \item{initialStrata}{
   This is the initial limit on the number of strata for each solution. Default is 3000
@@ -122,6 +132,8 @@ outstrata <- optimizeStrata (
     strata = strata, 
     cens = NULL,
     strcens = FALSE,
+	alldomains = TRUE,
+	dom = NULL,
     initialStrata = 3000,
     addStrataFactor = 0.01,    
     minnumstr = 2,
@@ -134,8 +146,8 @@ outstrata <- optimizeStrata (
 	writeFile = "YES")
 head(outstrata)
 #
-# The following example is realistic, but is time consuming
-#
+# The following example is realistic, but is time consuming as it implies 7 different domains
+#	it can be run by indicating a single domain (for instance = 7)
 \dontrun{
 library(SamplingStrata)
 data(swisserrors)
@@ -145,6 +157,8 @@ outstrata <- optimizeStrata (
     strata = swissstrata, 
     cens = NULL,
     strcens = FALSE,
+	alldomains = FALSE,
+	dom = 7,
     initialStrata = 3000,
     addStrataFactor = 0.01,    
     minnumstr = 2,

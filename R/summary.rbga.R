@@ -11,12 +11,13 @@ function(object, echo=FALSE, ...) {
         "  Elitism               = ", rbga.object$elitism, "\n",
         "  Mutation Chance       = ", rbga.object$mutationChance, "\n",
         "\n",
-        "Search Domain", "\n", sep="")
+#        "Search Domain", "\n", 
+		sep="")
     for (var in 1:length(rbga.object$stringMin)) {
         minVar = rbga.object$stringMin[var]
         maxVar = rbga.object$stringMax[var]
-        output = paste(output,
-            "  Var ", var, " = [", minVar, ",", maxVar, "]\n", sep="");
+#        output = paste(output,
+#            "  Var ", var, " = [", minVar, ",", maxVar, "]\n", sep="");
     }
     output = paste(output, "\n", sep="");
     if (!is.null(rbga.object$suggestions)) {

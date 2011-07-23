@@ -2,8 +2,8 @@ Package: SamplingStrata
 Type: Package
 Title: Optimal stratification of sampling frames for multipurpose
         sampling surveys
-Version: 0.9
-Date: 2011-4-27
+Version: 0.9-1
+Date: 2011-7-12
 Author: Giulio Barcaroli
 Maintainer: Giulio Barcaroli <barcarol@istat.it>
 Description: In the field of sampling design (in particular for
@@ -30,6 +30,6 @@ Description: In the field of sampling design (in particular for
 License: GPL
 LazyLoad: yes
 Depends: R (>= 2.10.0)
-Packaged: 2011-04-29 08:18:46 UTC; barcarol
+Packaged: 2011-07-14 12:31:27 UTC; barcarol
 Repository: CRAN
-Date/Publication: 2011-04-29 11:13:35
+Date/Publication: 2011-07-23 13:04:42

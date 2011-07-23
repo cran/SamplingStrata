@@ -11,6 +11,8 @@ strat <- split(strata,list(strata$DOM1))
 ndom <- length(levels(as.factor(strata$DOM1)))
 nvarX <- length(grep("X", names(strata)))
 newstrata <- NULL
+solution <- NULL
+matstrord <- NULL
 for (i in 1:ndom) {
     statement <- paste('solution <- read.table("solution',i,'.txt")',sep="")
     eval(parse(text=statement))

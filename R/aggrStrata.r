@@ -31,6 +31,10 @@ string9 <- paste(string9,"'TVAR",k1,"',",sep='')
 string10 <- paste(string10,"M",k1,",",sep='')
 string11 <- paste(string11,"S",k1,",",sep='')
 }
+strwrk <- NULL
+strwrk2 <- NULL
+strwrkagg <- NULL
+strcor <- NULL
 statement <- paste("strwrk <- data.frame(gruppo=vett,",string2,string3,"N)",sep='')
 eval(parse(text=statement))
 statement <- paste("strwrk2 <- aggregate(strwrk[,c(",string5,"'N')],by=list(vett),FUN=sum)",sep='')
