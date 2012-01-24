@@ -105,19 +105,6 @@ http://www.istat.it/dati/pubbsci/contributi/contributi2008.html
 Giulio Barcaroli
 }
 
-\seealso{
-  \code{\link{buildStrataDF}} to build the "strata" dataframe containing
-                        information on target variables Y's starting from information in a frame or in a 
-						previous round of the sample,
-  \code{\link{verify}} to analyse and control the stratification
-                        resulting by running optimizeStrata,
-  \code{\link{updateStrata}} to add new strata labels in the initial strata file,
-  \code{\link{updateFrame}} to modify strata labels in the initial frame file,
-  \code{\link{selectSample}} to select a stratified sample from the frame
-                        with srswor method,
-}  
-   
-
 
 \examples{
 #

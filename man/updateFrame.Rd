@@ -37,18 +37,6 @@ A dataframe containing the frame
 Giulio Barcaroli
 }
 
-
-\seealso{
-  \code{\link{buildStrataDF}} to build the "strata" dataframe containing
-                        information on target variables Y's starting from information in a frame or in a 
-						previous round of the sample,
-  \code{\link{verify}} to analyse and control the stratification
-                        resulting by running optimizeStrata,
-  \code{\link{optimizeStrata}} to optimise strata in the selection frame,
-  \code{\link{updateStrata}} to add new strata labels in the initial strata file,
-  \code{\link{selectSample}} to select a stratified sample from the frame
-                        with srswor method,
-}  
 \examples{
 #
 # The following example is realistic, but is time consuming

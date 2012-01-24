@@ -134,8 +134,13 @@ rbga.results <- rbga(
 ######################
 # Results
 ######################
+stmt <- paste("pdf('plotdom",dominio,".pdf')",sep="")
+eval(parse(text=stmt))
 plot(rbga.results)
-title(paste("Domain",dominio," - Sample size",rbga.results$best[iter]),col.main= "red")
+title(paste("Domain #",dominio," - Sample size",rbga.results$best[iter]),col.main= "red")
+dev.off()
+plot(rbga.results)
+title(paste("Domain #",dominio," - Sample size",rbga.results$best[iter]),col.main= "red")
 summary(rbga.results,echo=TRUE)
 #print(paste("Sample size: ",round(rbga.results$best[iter])))
 #cat(" *** Sample size: ",round(rbga.results$best[iter]))

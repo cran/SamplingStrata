@@ -1,7 +1,7 @@
 verify <-
 function(errors.chk, strata) {
 #attach(strata)
-plot(strata$DOM1,strata$soluz,pch=4,col="blue",xlab="Region",ylab="Allocation")
+plot(strata$DOM1,strata$soluz,pch=4,col="blue",xlab="Domain",ylab="Allocation")
 title("Distribution of allocations in strata by domains", 
       sub = "Identify strata by clicking (End=Stop)",
       cex.main = 1.25,   font.main= 4, col.main= "red",

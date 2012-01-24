@@ -10,11 +10,12 @@ Multivariate optimal allocation for different domains of interest in stratified 
 \usage{
 bethel  (
           stratif,
-          errors, 		  
-          minnumstrat=2,
-          epsilon=10^(-11),
+          errors, 
+          minnumstrat=2,          
           maxiter=200,
-          printa=FALSE
+          maxiter1=25,
+          printa=FALSE,
+          epsilon=1e-11
           ) 
 		  }
 \arguments{
@@ -28,6 +29,9 @@ bethel  (
  Minimum number of units per strata (default=2) 
 }
   \item{maxiter}{
+Maximum number of iterations of the algorithm (default=200)
+}
+  \item{maxiter1}{
 Maximum number of iterations (default=25) of the general procedure. 
 This kind of iteration may be required by the fact that when in a stratum the number 
 of allocated units is greater or equal to its population, that stratum is set as "census stratum", 
@@ -48,7 +52,7 @@ if it it is lower than "epsilon", then the procedure stops
 A vector containing the computed optimal allocation
 }
 \author{
-Daniela Pagliuca
+Daniela Pagliuca, Teresa Buglielli
 }
 
 \examples{
