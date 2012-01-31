@@ -11,8 +11,8 @@ built by assigning to the units of the old one the new stratum labels (by means 
 with the srswor method. 
 The result of the execution of "selectSample" function is a dataframe containing selected
 units, with the probabilities of inclusion.
-It is possible to output this dataframe in a .xls file.
-One more .xls file is produced ("sampling check"), containing coeherence checks between 
+It is possible to output this dataframe in a .csv file.
+One more .csv file is produced ("sampling check"), containing coeherence checks between 
 (a) population in frame strata
 (b) population in optimised strata
 (c) planned units to be selected in optimised strata
@@ -48,17 +48,6 @@ A dataframe containing the sample
 Giulio Barcaroli, Diego Zardetto
 }
 
-
-\seealso{
-  \code{\link{buildStrataDF}} to build the "strata" dataframe containing
-                        information on target variables Y's starting from information in a frame or in a 
-						previous round of the sample,
-  \code{\link{verify}} to analyse and control the stratification
-                        resulting by running optimizeStrata,
-  \code{\link{updateStrata}} to add new strata labels in the initial strata file,
-  \code{\link{updateFrame}} to modify strata labels in the initial frame file,
-  \code{\link{optimizeStrata}} to optimise strata in the selection frame,
-} 
  
 \examples{
 #

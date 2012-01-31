@@ -45,15 +45,6 @@ A dataframe containing strata
 Giulio Barcaroli
 }
 
-\seealso{
-  \code{\link{optimizeStrata}} to optimise strata in the selection frame,
-  \code{\link{verify}} to analyse and control the stratification
-                        resulting by running optimizeStrata,
-  \code{\link{updateStrata}} to add new strata labels in the initial strata file,
-  \code{\link{updateFrame}} to modify strata labels in the initial frame file,
-  \code{\link{selectSample}} to select a stratified sample from the frame
-                        with srswor method,
-}  
 \examples{
 
 library(SamplingStrata)
