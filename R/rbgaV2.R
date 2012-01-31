@@ -87,6 +87,9 @@ rbga <- function(stringMin=c(), stringMax=c(),
         bestEvals = rep(NA, iters);
         meanEvals = rep(NA, iters);
         evalVals = rep(NA, popSize);
+		# Modifica 4: controllo di mutationChance sulla base del bestEval
+		costante <- 0
+		#-------------
         for (iter in 1:iters) {
             if (verbose) cat(paste("Starting iteration", iter, "\n"));
 
@@ -100,6 +103,19 @@ rbga <- function(stringMin=c(), stringMax=c(),
             }
             bestEvals[iter] = min(evalVals);
             meanEvals[iter] = mean(evalVals);
+			# Fa parte di modifica 4: mutationChance is increased in case of potential local minimum
+#			if (iter > 1) {
+#				if (bestEvals[iter] == bestEvals[iter-1]) costante <- costante + 1
+#				if ((iters > 1000) & (costante > (iters / 100))) {
+#					if (mutationChance > 1/(5 * (vars+1)))   {
+#						mutationChance <- mutationChance / 2
+#						cat("\nmutationChance modified to: ",mutationChance,"\n")
+#						costante <- 0
+#					}
+#				}
+#				if (bestEvals[iter] != bestEvals[iter-1]) costante <- 0
+#			}
+			# -------------------------------------------------------	
             if (verbose) cat(" done.\n");
             
             if (!is.null(monitorFunc)) {

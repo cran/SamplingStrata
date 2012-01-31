@@ -95,11 +95,11 @@ buildStrataDF <- function (dataset)
     }
     N <- tapply(domain$WEIGHT, domain$STRATO, sum)
     STRATO <- domain$STRATO
-    cost <- rep(1, length(levels(domain$STRATO)))
-    cens <- rep(0, length(levels(domain$STRATO)))
+    COST <- rep(1, length(levels(domain$STRATO)))
+    CENS <- rep(0, length(levels(domain$STRATO)))
     DOM1 <- rep(as.character(d), length(levels(domain$STRATO)))
     stmt <- paste("strata <- as.data.frame(cbind(STRATO=levels(STRATO),N,", 
-        listM, listS, "cost,cens,DOM1))")
+        listM, listS, "COST,CENS,DOM1))")
     eval(parse(text = stmt))
     for (i in 1:nvarX) {
         stmt <- paste("strata$X", i, " <- rep(0, length(levels(domain$STRATO)))", 
@@ -113,6 +113,7 @@ buildStrataDF <- function (dataset)
     }
 	stratatot <- rbind(stratatot,strata)
 	}  # end domain cycle
+	colnames(stratatot) <- toupper(colnames(stratatot))
     write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t", 
         dec = ".", row.names = FALSE)
 	stratatot <- read.delim("strata.txt")

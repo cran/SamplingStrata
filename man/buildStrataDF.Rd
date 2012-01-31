@@ -47,7 +47,6 @@ Giulio Barcaroli
 
 \examples{
 
-library(SamplingStrata)
 data(swissframe)
 strata <- buildStrataDF(swissframe)
 head(strata)

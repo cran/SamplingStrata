@@ -97,9 +97,9 @@ As a first step, we have to define a frame dataframe containing the following in
 \item	the value of the domain of interest for which we want to produce estimates (named 'domainvalue').
 \end{itemize} 
 
-By typing the following statement in the R environment:
+By typing the following statements in the R environment:
 <<frame1>>=
-library(sampling)
+library(SamplingStrata)
 data(swissmunicipalities)
 @
 we get the {\tt swissmunicipalities} dataframe, that contains 2896 observations (each observation refers to a Swiss municipality). 

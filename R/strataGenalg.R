@@ -19,11 +19,14 @@ strataGenalg <- function (errors,
                           elitism_rate,
                           addStrataFactor,
                           highvalue,
-                          suggestions)
+                          suggestions,
+						  realAllocation)
 {                          
 #options(echo=FALSE)
 #--------------------------------------------------------------------------
-# Loading genetic algorithm package and functions
+# 
+colnames(strata) <- toupper(colnames(strata))
+colnames(errors) <- toupper(colnames(errors))
 fileres <- paste("results",dominio,".txt",sep="")
 sink(file=fileres)
 #--------------------------------------------------------------------------
@@ -54,6 +57,7 @@ cat("\nDimension of GA population: ",pops)
 cat("\nMutation chance in GA generation: ",mut_chance)
 cat("\nElitism rate in GA generation: ",elitism_rate)
 cat("\nChance to add strata to maximum: ",addStrataFactor)
+cat("\nAllocation with real numbers instead of integers: ",realAllocation)
 sink()
 #--------------------------------------------------------------------------
 varloop <- c(1:nvar)
@@ -89,11 +93,12 @@ evaluate <- function(indices) {
          	strcor,
         	errors,
         	minnumstr,      
-        	printa=FALSE
+        	printa=FALSE,
+			realAllocation=realAllocation
         	)
   sink()
   sink(file=fileres,append=TRUE)
-  ntot <- round(sum(soluz))
+  ntot <- sum(soluz)
 #  if (dimens > (initialStrata-1)) ntot <- highvalue
 #  cat("\nSolution: ",indices)
   cat("\nNumber of strata:",nrow(strcor)," Sample size:",ntot)
@@ -125,11 +130,11 @@ rbga.results <- rbga(
 		iters=iter,
 		popSize=pops,
 		mutationChance=mut_chance,
-    elitism_rate,
-    addStrataFactor,		
+		elitism_rate,
+		addStrataFactor,		
 		evalFunc=evaluate,
 		verbose=TRUE,
-		showSetting=TRUE,
+		showSettings=TRUE,
     )
 ######################
 # Results
@@ -159,13 +164,15 @@ soluz <- bethel (
          	strcor,
         	errors,
         	minnumstr,
-        	printa=F
+        	printa=FALSE,
+			realAllocation=realAllocation
         	)
 sink()
 sink(file=fileres,append=TRUE)
 cat("\n *** Sample size: ",sum(soluz))
 cat(paste("\n *** Number of strata: ",dimens))
 risulta <- cbind(strcor,soluz)
+colnames(risulta) <- toupper(colnames(risulta))
 fileout <- paste("outstrata",dominio,".txt",sep="")
 write.table(risulta,file=fileout,sep="\t",row.names=FALSE,col.names=TRUE,quote=FALSE)
 cat("\n...written output to",fileout)

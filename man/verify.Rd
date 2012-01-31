@@ -6,10 +6,10 @@ Analysis and control of stratification resulting by running optimizeStrata
 }
 \description{
 Once stratification has been obtained ('outstrata') it is worth while to analyse the  distribution 
-of population units in resulting strata. This can be done by using function 'verify' to
-1. visually inspect strata
-2. select (by left clicking) outlier strata
-3. edit selected strata (by rigth clicking and choosing 'stop' in the graph)
+of allocated units in resulting strata. This can be done by using function 'verify' to
+(1) visually inspect strata,
+(2) select (by left clicking) outlier strata,
+(3) edit selected strata (by rigth clicking and choosing 'stop' in the graph).
 Finally, it is possible to verify that sample allocation is compliant not only 
 with the subdomains that have been used to optimise stratification, but also 
 with all desired levels of possible domains. To do that, prepare a 'errors.chk.txt' that has the 

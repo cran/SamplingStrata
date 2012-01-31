@@ -15,6 +15,7 @@ bethel  (
           maxiter=200,
           maxiter1=25,
           printa=FALSE,
+		  realAllocation=FALSE,
           epsilon=1e-11
           ) 
 		  }
@@ -41,6 +42,9 @@ and the whole procedure is re-initialised
 If TRUE add two attributes to resulting vector.
 The first (confr) is a comparison between results obtained with 3 different allocation methods: Bethel, proportional and equal.
 The second is a table reporting planned and actual CV and sensitivity 
+}
+  \item{realAllocation}{
+If FALSE, the allocation is based on INTEGER values; if TRUE, the allocation is based on REAL values
 }
   \item{epsilon}{
 Epsilon (default=1e-11)): this value is used to compare the difference in results from one iteration to the other; 
