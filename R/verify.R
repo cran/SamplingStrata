@@ -1,12 +1,13 @@
 verify <-
 function(errors.chk, strata) {
 #attach(strata)
-plot(strata$DOM1,strata$soluz,pch=4,col="blue",xlab="Domain",ylab="Allocation")
+colnames(errors.chk) <- toupper(colnames(errors.chk))
+plot(strata$DOM1,strata$SOLUZ,pch=4,col="blue",xlab="Domain",ylab="Allocation")
 title("Distribution of allocations in strata by domains", 
       sub = "Identify strata by clicking (End=Stop)",
       cex.main = 1.25,   font.main= 4, col.main= "red",
       cex.sub = 1.00, font.sub = 3, col.sub = "red")
-v <- identify(strata$DOM1,strata$soluz,labels=strata$strato)
+v <- identify(strata$DOM1,strata$SOLUZ,labels=strata$STRATO)
 edit(strata[v,])
 strata$DOM2 <- strata$DOM1
 strata$DOM1 <- c(rep(1,nrow(strata)))

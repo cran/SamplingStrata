@@ -19,12 +19,12 @@ function (
           maxiter=200,
           maxiter1=25,
           printa=FALSE,
+		  realAllocation=FALSE,
           epsilon=1e-11
           ) 
 
 # Begin body 
 {
-
 # First input data frame   
          colnames(stratif) <- toupper(colnames(stratif))
          
@@ -195,8 +195,9 @@ chromy=function(alfatot,diff,iter, alfa, alfanext, x)
   alfa2 <<- alfanext    #For sensitivity
   }
   # Allocation vector
-  n <- ceiling(1 / x)
-   return(n)
+  if (realAllocation == FALSE) n <- ceiling(1 / x)
+  if (realAllocation == TRUE) n <- 1 / x
+  return(n)
 }
 #-----------------------------------------------------------
 #  Check results

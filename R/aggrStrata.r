@@ -59,10 +59,11 @@ strato <- strwrkagg$Group.1
 N <- strwrkagg$N
 dimens <- nrow(strwrkagg)
 DOM1 <- c(rep(dominio,dimens))
-cost <- c(rep(1,dimens))
-cens <- c(rep(censiti,dimens))
-statement <- paste("strcor <- data.frame(strato,",string10,string11,"N,DOM1,cost,cens)",sep='')
+COST <- c(rep(1,dimens))
+CENS <- c(rep(censiti,dimens))
+statement <- paste("strcor <- data.frame(strato,",string10,string11,"N,DOM1,COST,CENS)",sep='')
 eval(parse(text=statement))
+colnames(strcor) <- toupper(colnames(strcor))
 return(strcor)
 }
 

@@ -19,6 +19,7 @@ optimizeStrata <- function (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
+	realAllocation = FALSE,
     writeFile = "YES")
 { 
 # Check
@@ -26,8 +27,11 @@ optimizeStrata <- function (
 #--------------------------------------------------------------------------
 # Parameters
 #--------------------------------------------------------------------------
-erro <- split(errors,list(errors$domainvalue))
+colnames(errors) <- toupper(colnames(errors))
+colnames(strata) <- toupper(colnames(strata))
+erro <- split(errors,list(errors$DOMAINVALUE))
 stcamp <- split(strata,list(strata$DOM1))
+if (strcens == TRUE) colnames(strcens) <- toupper(colnames(strcens))
 if (strcens == TRUE) stcens <- split(cens,list(cens$DOM1))
 ndom <- length(levels(as.factor(strata$DOM1)))
 # begin alldomains = TRUE
@@ -51,11 +55,13 @@ for (i in 1:ndom) {
                 elitism_rate,
                 addStrataFactor,
                 highvalue,
-                suggestions
+                suggestions,
+				realAllocation
                 )
   }
 
 outstrata <- read.delim("outstrata1.txt")
+colnames(outstrata) <- toupper(colnames(outstrata))
 out <- NULL
 if (ndom > 1) {
   for (i in 2:ndom) {
@@ -74,7 +80,7 @@ if (alldomains == FALSE) {
   if (strcens == TRUE) cens <- stcens[[i]]
 #  statement <- paste("solut <- read.table('solutionNew",i,".txt',header=TRUE)",sep="")
 #  eval(parse(text=statement))
-#  sugg <- matrix(solut$stratonew,nrow=20,ncol=nrow(solut),byrow=TRUE)
+#  sugg <- matrix(solut$STRATONEW,nrow=20,ncol=nrow(solut),byrow=TRUE)
   strataGenalg (errors=erro[[i]],
                 strata=stcamp[[i]],
                 cens=cens,
@@ -88,14 +94,15 @@ if (alldomains == FALSE) {
                 elitism_rate,
                 addStrataFactor,
                 highvalue,
-                suggestions
+                suggestions,
+				realAllocation
                 )
   stmt <- paste("outstrata <- read.delim('outstrata",i,".txt",sep="")
   eval(parse(text=stmt))
   }
 
 # end alldomains = FALSE
-dimens <- sum(outstrata$soluz)
+dimens <- sum(outstrata$SOLUZ)
 if (writeFile == "YES") write.table(outstrata,file="outstrata.txt",sep="\t",row.names=FALSE,col.names=TRUE,quote=FALSE)
 cat("\n *** Sample size : ",dimens)
 cat("\n *** Number of strata : ",nrow(outstrata))

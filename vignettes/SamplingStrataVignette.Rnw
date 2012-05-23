@@ -97,9 +97,9 @@ As a first step, we have to define a frame dataframe containing the following in
 \item	the value of the domain of interest for which we want to produce estimates (named 'domainvalue').
 \end{itemize} 
 
-By typing the following statement in the R environment:
+By typing the following statements in the R environment:
 <<frame1>>=
-library(sampling)
+library(SamplingStrata)
 data(swissmunicipalities)
 @
 we get the {\tt swissmunicipalities} dataframe, that contains 2896 observations (each observation refers to a Swiss municipality). 
@@ -306,10 +306,14 @@ to the current value. Default is 0.01
 solution vector. High values of this parameter allow a deeper exploration of the solution space, but a slower convergence, while low 
 values permit a faster convergence, but the final solution can be distant from the optimal one. Default is 0.05 
 \item	{\tt elitism\_rate}: this parameter indicates the rate of better solutions that must be preserved from one generation to another. 
-Default is 0.2 (20 
+Default is 0.2. 
 \item	{\tt highvalue}: parameter for genetic algorithm. Its default value should not be changed 
 \item	{\tt suggestions}: optional parameter for genetic algorithm that indicates one possible solution (maybe from previous runs) that 
 will be introduced in the initial population. Default is NULL.
+\item   {\tt realAllocation} : if FALSE, the allocation is based on INTEGER values; if TRUE, the allocation is based on REAL values.
+Default is FALSE.
+\item	{\tt writeFile} : indicates if at the end of the processing the resulting strata will be outputted in a delimited file.
+Default is "YES".
 \end{enumerate}
 In the case of the Swiss municipalities, this is a possible choice of the value of the parameters:
 <<frame18>>=
@@ -326,8 +330,10 @@ outstrata <- optimizeStrata(
 	mut_chance = 0.05, 
 	elitism_rate = 0.2,
 	highvalue = 1e+08, 
-	suggestions = NULL
-)
+	suggestions = NULL,
+	realAllocation = TRUE,
+	writeFile = "YES")
+sum(ceiling(outstrata$SOLUZ))
 @
 The execution of {\tt optimizeStrata} produces the solution of 7 different optimization problems, one for each domain (see fig.1). 
 
