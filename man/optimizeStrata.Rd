@@ -15,7 +15,7 @@ This function runs a set of other functions to optimise the stratification of a 
 	strcens = FALSE,
 	alldomains = TRUE,
 	dom = NULL,	
-	initialStrata = 3000, 
+	initialStrata = nrow(strata), 
 	addStrataFactor = 0.01, 
 	minnumstr = 2, 
 	iter = 20, 
@@ -97,71 +97,62 @@ This function runs a set of other functions to optimise the stratification of a 
 }
 
 \value{
-A dataframe containing strata
+A dataframe containing optimal strata
 }
-\references{
-Ballin M., Barcaroli G. (2008) - 'Optimal stratification of 
-sampling frames in a multivariate 
-and multidomain sample design', Contributi Istat n.10/2008,  
-http://www.istat.it/dati/pubbsci/contributi/contributi2008.html
-}
+
 \author{
 Giulio Barcaroli
 }
-
 
 \examples{
 #
 # This is a toy example, and can be run
 #
+\donttest{
 library(SamplingStrata)
 data(errors)
 data(strata)
 # optimisation of sampling strata
-outstrata <- optimizeStrata (
-	errors = errors,
-	strata = strata,
-	cens = NULL,
-	strcens = FALSE,
-	alldomains = TRUE,
-	dom = NULL,
-	initialStrata = nrow(strata)/3,
-	addStrataFactor = 0.01,
-	minnumstr = 2,
-	iter = 100,
-	pops = 20,
-	mut_chance = 0.05,
-	elitism_rate = 0.2,
-	highvalue = 100000000,
-	suggestions = NULL,
-	realAllocation = TRUE,
+outstrata <- optimizeStrata ( 
+    errors = errors, 
+    strata = strata, 
+    cens = NULL,
+    strcens = FALSE,
+    initialStrata = 3000,
+    addStrataFactor = 0.01,    
+    minnumstr = 2,
+    iter = 30,
+    pops = 20,
+    mut_chance = 0.05,
+    elitism_rate = 0.2,
+    highvalue = 100000000,
+    suggestions = NULL,
 	writeFile = "YES")
 sum(ceiling(outstrata$SOLUZ))
 head(outstrata)
+}
 #
-# The following example is realistic, but is time consuming as it implies 7 different domains
-#	it can be run by indicating a single domain (for instance = 7)
+# The following example is realistic, but is time consuming
+#
 \dontrun{
 library(SamplingStrata)
 data(swisserrors)
 data(swissstrata)
-outstrata <- optimizeStrata (
-	errors = swisserrors,
-	strata = swissstrata,
-	cens = NULL,
-	strcens = FALSE,
-	alldomains = TRUE,
-	dom = NULL,
-	initialStrata = nrow(strata)/3,
-	addStrataFactor = 0.01,
-	minnumstr = 2,
-	iter = 100,
-	pops = 20,
-	mut_chance = 0.05,
-	elitism_rate = 0.2,
-	highvalue = 100000000,
-	suggestions = NULL,
-	realAllocation = TRUE,
+# optimisation of sampling strata
+outstrata <- optimizeStrata ( 
+    errors = swisserrors, 
+    strata = swissstrata, 
+    cens = NULL,
+    strcens = FALSE,
+    initialStrata = 3000,
+    addStrataFactor = 0.01,    
+    minnumstr = 2,
+    iter = 60,
+    pops = 20,
+    mut_chance = 0.05,
+    elitism_rate = 0.2,
+    highvalue = 100000000,
+    suggestions = NULL,
 	writeFile = "YES")
 sum(ceiling(outstrata$SOLUZ))
 head(outstrata)

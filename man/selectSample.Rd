@@ -5,9 +5,10 @@
 Selection of a stratified sample from the frame with srswor method 
 }
 \description{
-Once optimal stratification has been obtained ('outstrata'),and a new frame has been 
+Once optimal stratification has been obtained (in the dataframe 'outstrata'), 
+and a new frame has been 
 built by assigning to the units of the old one the new stratum labels (by means of 
-"updateFrame" function, it is possible to select a stratified sample from the frame 
+"updateFrame" function), it is possible to select a stratified sample from the frame 
 with the srswor method. 
 The result of the execution of "selectSample" function is a dataframe containing selected
 units, with the probabilities of inclusion.
@@ -21,7 +22,7 @@ One more .csv file is produced ("sampling check"), containing coeherence checks 
 
 }
 \usage{
-selectSample(frame, outstrata, writeFile = "YES")
+selectSample(frame, outstrata, writeFile = "YES",verbatim=TRUE)
 }
 \arguments{
   \item{frame}{
@@ -37,6 +38,10 @@ selectSample(frame, outstrata, writeFile = "YES")
   \item{writeFile}{
   Indicates if at the end of the processing the resulting strata will be outputted in a delimited file.
   Default is "YES".
+}
+  \item{verbatim}{
+  Indicates if information on the drawn sample must be printed or not.
+  Default is "TRUE".
 }
 }
 

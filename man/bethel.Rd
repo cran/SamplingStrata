@@ -39,9 +39,9 @@ of allocated units is greater or equal to its population, that stratum is set as
 and the whole procedure is re-initialised 
 }
   \item{printa}{
-If TRUE add two attributes to resulting vector.
-The first (confr) is a comparison between results obtained with 3 different allocation methods: Bethel, proportional and equal.
-The second is a table reporting planned and actual CV and sensitivity 
+If TRUE then two attributes are added to the resulting vector.
+The first ('confr') is a comparison between results obtained with 3 different allocation methods: Bethel, proportional and equal.
+The second ('outcv') is a table reporting planned and actual CV, together with a sensitivity analysis
 }
   \item{realAllocation}{
 If FALSE, the allocation is based on INTEGER values; if TRUE, the allocation is based on REAL values
@@ -60,13 +60,11 @@ Daniela Pagliuca, Teresa Buglielli
 }
 
 \examples{
-
 library(SamplingStrata)
 data(strata)
 data(errors)
 n <- bethel(strata, errors, printa=TRUE)
 sum(n)
-
 }
 \keyword{ survey }
 

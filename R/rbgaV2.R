@@ -31,7 +31,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
     }
     
     # TODO: should do a variaty of sanity checks first
-    if (verbose) cat("Testing the sanity of parameters...\n");
+#    if (verbose) cat("Testing the sanity of parameters...\n");
     if (length(stringMin) != length(stringMax)) {
         stop("The vectors stringMin and stringMax must be of equal length.");
     }
@@ -46,7 +46,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
     }
     
     if (showSettings) {
-        if (verbose) cat("The start conditions:\n");
+#        if (verbose) cat("The start conditions:\n");
         result = list(stringMin=stringMin, stringMax=stringMax, suggestions=suggestions,
                       popSize=popSize, iters=iters,
                       elitism=elitism, mutationChance=mutationChance);
@@ -54,24 +54,25 @@ rbga <- function(stringMin=c(), stringMax=c(),
         
         cat(summary(result));
     } else {
-        if (verbose) cat("Not showing GA settings...\n");
+#        if (verbose) cat("Not showing GA settings...\n");
     }
     
     if (vars > 0) {
         if (!is.null(suggestions)) {
-            if (verbose) cat("Adding suggestions to first population...\n");
+#            if (verbose) cat("Adding suggestions to first population...\n");
             population = matrix(nrow=popSize, ncol=vars);
             suggestionCount = dim(suggestions)[1]
             for (i in 1:suggestionCount) {
                 population[i,] = suggestions[i,]
             }
-            if (verbose) cat("Filling others with random values in the given domains...\n");
+#            if (verbose) cat("Filling others with random values in the given domains...\n");
             for (var in 1:vars) {
-                population[(suggestionCount+1):popSize,var] = stringMin[var] +
-                                   runif(popSize-suggestionCount)*(stringMax[var]-stringMin[var]);
+#                population[(suggestionCount+1):popSize,var] = stringMin[var] +
+#                                   runif(popSize-suggestionCount)*(stringMax[var]-stringMin[var]);
+				population[(suggestionCount+1):popSize,var]=sample.int(stringMax[var],size=(popSize-suggestionCount),replace=TRUE,prob=NULL)
             }
         } else {
-            if (verbose) cat("Starting with random values in the given domains...\n");
+ #           if (verbose) cat("Starting with random values in the given domains...\n");
             # start with an random population
             population = matrix(nrow=popSize, ncol=vars);
             # fill values
@@ -91,14 +92,14 @@ rbga <- function(stringMin=c(), stringMax=c(),
 		costante <- 0
 		#-------------
         for (iter in 1:iters) {
-            if (verbose) cat(paste("Starting iteration", iter, "\n"));
+#            if (verbose) cat(paste("Starting iteration", iter, "\n"));
 
             # calculate each object
-            if (verbose) cat("Calculating evaluation values... ");
+#            if (verbose) cat("Calculating evaluation values... ");
             for (object in 1:popSize) {
                 if (is.na(evalVals[object])) {
                     evalVals[object] = evalFunc(population[object,]);
-                    if (verbose) cat(".");
+#                    if (verbose) cat(".");
                 }
             }
             bestEvals[iter] = min(evalVals);
@@ -116,10 +117,10 @@ rbga <- function(stringMin=c(), stringMax=c(),
 #				if (bestEvals[iter] != bestEvals[iter-1]) costante <- 0
 #			}
 			# -------------------------------------------------------	
-            if (verbose) cat(" done.\n");
+#            if (verbose) cat(" done.\n");
             
             if (!is.null(monitorFunc)) {
-                if (verbose) cat("Sending current state to rgba.monitor()...\n");
+#                if (verbose) cat("Sending current state to rgba.monitor()...\n");
                 # report on GA settings
                 result = list(type="floats chromosome",
                               stringMin=stringMin, stringMax=stringMax,
@@ -132,24 +133,24 @@ rbga <- function(stringMin=c(), stringMax=c(),
             }
             
             if (iter < iters) { # ok, must create the next generation
-                if (verbose) cat("Creating next generation...\n");
+#                if (verbose) cat("Creating next generation...\n");
                 newPopulation = matrix(nrow=popSize, ncol=vars);
                 newEvalVals = rep(NA, popSize);
                 
-                if (verbose) cat("  sorting results...\n");
+#                if (verbose) cat("  sorting results...\n");
                 sortedEvaluations = sort(evalVals, index=TRUE);
                 sortedPopulation  = matrix(population[sortedEvaluations$ix,], ncol=vars);
                 
                 # save the best
                 if (elitism > 0) {
-                    if (verbose) cat("  applying elitism...\n");
+#                    if (verbose) cat("  applying elitism...\n");
                     newPopulation[1:elitism,] = sortedPopulation[1:elitism,];
                     newEvalVals[1:elitism] = sortedEvaluations$x[1:elitism]
                 } # ok, save nothing
                 
                 # fill the rest by doing crossover
                 if (vars > 1) {
-                    if (verbose) cat("  applying crossover...\n");
+#                    if (verbose) cat("  applying crossover...\n");
                     for (child in (elitism+1):popSize) {
                         # ok, pick two random parents
                         parentIDs = sample(1:popSize, 2)
@@ -168,7 +169,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
                         }
                     }
                 } else { # otherwise nothing to crossover
-                    if (verbose) cat("  cannot crossover (#vars=1), using new randoms...\n");
+#                    if (verbose) cat("  cannot crossover (#vars=1), using new randoms...\n");
                     # random fill the rest
                     newPopulation[(elitism+1):popSize,] = 
                         sortedPopulation[sample(1:popSize, popSize-elitism),];
@@ -180,7 +181,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
                 # do mutation
                 #--------------------------------------------------------------------
                 if (mutationChance > 0) {
-                    if (verbose) cat("  applying mutations... ");
+#                    if (verbose) cat("  applying mutations... ");
                     mutationCount = 0;
                     for (object in (elitism+1):popSize) { # don't mutate the best
                         for (var in 1:vars) {
@@ -224,7 +225,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
                             }
                         }
                     }
-                    if (verbose) cat(paste(mutationCount, "mutations applied\n"));
+#                    if (verbose) cat(paste(mutationCount, "mutations applied\n"));
                 }
             }
         }

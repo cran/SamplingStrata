@@ -2,15 +2,15 @@
 \Rdversion{1.1}
 \alias{var.bin}
 \title{
-This function allows to transform a continuous variable into a categorical ordinal one
-by applying kmeans function in stats package.
+Allows to transform a continuous variable into a categorical ordinal one
+by applying a modified version of the k-means clustering function in the 'stats' package.
 }
 \description{
-The optimisation of a frame stratification is applicable only in presence of all categorical
+The optimization of a frame stratification is applicable only in presence of all categorical
 auxiliary variables in the frame. If one or more continuous auxiliary variables are in the frame, 
-it is necessary to preprocess them in order to convert into categorical (ordinal) variables.
-The applied method is the "k-means" clustering method contained in the in stats package.
-This function controls that the final result is in an ordered categorical variable.
+it is necessary to pre-process in order to convert them into categorical (ordinal) variables.
+The applied method is the "k-means" clustering method contained in the in "stats" package.
+This function ensures that the final result is in an ordered categorical variable.
 }
 \usage{
 var.bin(x,
@@ -33,12 +33,14 @@ Binned variable
 }
  
 \examples{
+\donttest{
 library(SamplingStrata)
 data(swissmunicipalities)
 data(swissframe)
 swissframe$X1 <- var.bin(swissmunicipalities$POPTOT,bins = 18)
 table(swissframe$X1)
 tapply(swissmunicipalities$POPTOT,swissframe$X1,mean)
+}
 }
 \keyword{ survey }
 
