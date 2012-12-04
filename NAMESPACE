@@ -1,1 +1,1 @@
-export(buildStrataDF,optimizeStrata,verify,updateStrata,updateFrame,selectSample,checkInput,bethel,var.bin)
+export(buildStrataDF,optimizeStrata,tuneParameters,updateStrata,updateFrame,selectSample,checkInput,bethel,var.bin,evalSolution)

@@ -2,15 +2,17 @@
 \Rdversion{1.1}
 \alias{updateStrata}
 \title{
-Attribution of new labels to atomic strata on the basis of the optimised strata aggregation 
+Assigns new labels to atomic strata on the basis of the optimized aggregated strata 
 }
 \description{
-Once optimal stratification has been obtained ('outstrata') it is important to attribute 
+Once optimal stratification has been obtained ('outstrata'), then we need to attribute 
 new strata labels to each atomic stratum.
 By executing this function, a new dataframe "newstrata" will be obtained with the same structure of the old, 
 ("strata") but with the addition of a new stratum label.
-By indicating "YES" to "writeFile" parameter, the dataframe "newstrata" will be outputted in a delimited file ("newstrata.txt").
-Also a second delimited file ("strata_aggregation.txt") will be outputted, containing relations bewteen atomic and aggregated strata. 
+By indicating "YES" to "writeFile" parameter, the dataframe "newstrata" will be written to a delimited file 
+("newstrata.txt").
+Also a second delimited file ("strata_aggregation.txt") will be outputted, 
+containing the indication of the relations bewteen atomic and aggregated strata. 
 }
 \usage{
 updateStrata(strata, writeFile = "YES")
@@ -39,6 +41,7 @@ Giulio Barcaroli
 #
 # This is a toy example, and can be run
 #
+\donttest{
 library(SamplingStrata)
 data(errors)
 data(strata)
@@ -60,6 +63,7 @@ outstrata <- optimizeStrata (
 	writeFile = "YES")
 # updating sampling strata with new strata labels
 newstrata <- updateStrata(strata)
+}
 #
 # The following example is realistic, but is time consuming
 #

@@ -1,7 +1,6 @@
-updateFrame <- function (frame , newstrata ) 
-{
-	colnames(frame) <- toupper(colnames(frame))
-	colnames(newstrata) <- toupper(colnames(newstrata))
+updateFrame <- function(frame, newstrata) {
+    colnames(frame) <- toupper(colnames(frame))
+    colnames(newstrata) <- toupper(colnames(newstrata))
     nvarX <- length(grep("X", names(newstrata)))
     if (nvarX == 1) 
         frame$STRATUM <- newstrata$X1
@@ -16,11 +15,13 @@ updateFrame <- function (frame , newstrata )
         eval(parse(text = stmt))
     }
     newstrata$STRATUM <- as.character(newstrata$STRATUM)
-    labels <- as.data.frame(cbind(newstrata$STRATUM,newstrata$DOM1,newstrata$LABEL))
+    labels <- as.data.frame(cbind(newstrata$STRATUM, newstrata$DOM1, 
+        newstrata$LABEL))
     colnames(labels) <- c("STRATUM", "DOMAINVALUE", "LABEL")
     framenew <- merge(frame, labels, by = c("DOMAINVALUE", "STRATUM"))
-	colnames(framenew) <- toupper(colnames(framenew))
-    write.table(framenew, "framenew.txt", row.names = FALSE, sep = "\t", quote = FALSE)
+    colnames(framenew) <- toupper(colnames(framenew))
+    write.table(framenew, "framenew.txt", row.names = FALSE, 
+        sep = "\t", quote = FALSE)
     framenew <- read.delim("framenew.txt")
     return(framenew)
 }

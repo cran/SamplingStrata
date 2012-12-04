@@ -5,7 +5,7 @@ function(object, echo=FALSE, ...) {
     
     output = paste(
         "GA Settings", "\n",
-        "  Type                  = ", rbga.object$type, "\n",
+#        "  Type                  = ", rbga.object$type, "\n",
         "  Population size       = ", rbga.object$popSize, "\n",
         "  Number of Generations = ", rbga.object$iters, "\n",
         "  Elitism               = ", rbga.object$elitism, "\n",

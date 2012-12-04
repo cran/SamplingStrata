@@ -1,6 +1,5 @@
-updateStrata <- function (strata, writeFile = "YES") 
-{
-	colnames(strata) <- toupper(colnames(strata))
+updateStrata <- function(strata, writeFile = "YES") {
+    colnames(strata) <- toupper(colnames(strata))
     strat <- split(strata, list(strata$DOM1))
     ndom <- length(levels(as.factor(strata$DOM1)))
     nvarX <- length(grep("X", names(strata)))
@@ -17,36 +16,36 @@ updateStrata <- function (strata, writeFile = "YES")
     stmt <- "matstrata <- as.data.frame(cbind(newstrata$DOM1,newstrata$V1,"
     stmt2 <- "colnames(matstrata) <- c('DOM1','AGGR_STRATUM',"
     stmt3 <- NULL
-	if (nvarX > 1) {
-		for (i in 1:(nvarX - 1)) {
-			stmt <- paste(stmt, "newstrata$X", i, ",", sep = "")
-			stmt2 <- paste(stmt2, "'X", i, "',", sep = "")
-			stmt3 <- paste(stmt3, "matstrata$X", i, ",", sep = "")
-			}
-		stmt <- paste(stmt, "newstrata$X", nvarX, "))", sep = "")
-		eval(parse(text = stmt))
-		stmt2 <- paste(stmt2, "'X", nvarX, "')", sep = "")
-		eval(parse(text = stmt2))
-		stmt3 <- paste(stmt3, "matstrata$X", nvarX, sep = "")
-		statement <- paste("matstrord <- matstrata[order(matstrata$DOM1,matstrata$AGGR_STRATUM,", 
-							stmt3, "),]", sep = "")
-		eval(parse(text = statement))
-		}
-	if (nvarX == 1) {
-		for (i in 1:1) {
-			stmt <- paste(stmt, "newstrata$X", i, ",", sep = "")
-			stmt2 <- paste(stmt2, "'X", i, "',", sep = "")
-			stmt3 <- paste(stmt3, "matstrata$X", i, ",", sep = "")
-			}
-		stmt <- paste(stmt, "newstrata$X", nvarX, "))", sep = "")
-		eval(parse(text = stmt))
-		stmt2 <- paste(stmt2, "'X", nvarX, "')", sep = "")
-		eval(parse(text = stmt2))
-		stmt3 <- paste(stmt3, "matstrata$X", nvarX, sep = "")
-		statement <- paste("matstrord <- matstrata[order(matstrata$DOM1,matstrata$AGGR_STRATUM,", 
-							stmt3, "),]", sep = "")
-		eval(parse(text = statement))
-		}
+    if (nvarX > 1) {
+        for (i in 1:(nvarX - 1)) {
+            stmt <- paste(stmt, "newstrata$X", i, ",", sep = "")
+            stmt2 <- paste(stmt2, "'X", i, "',", sep = "")
+            stmt3 <- paste(stmt3, "matstrata$X", i, ",", sep = "")
+        }
+        stmt <- paste(stmt, "newstrata$X", nvarX, "))", sep = "")
+        eval(parse(text = stmt))
+        stmt2 <- paste(stmt2, "'X", nvarX, "')", sep = "")
+        eval(parse(text = stmt2))
+        stmt3 <- paste(stmt3, "matstrata$X", nvarX, sep = "")
+        statement <- paste("matstrord <- matstrata[order(matstrata$DOM1,matstrata$AGGR_STRATUM,", 
+            stmt3, "),]", sep = "")
+        eval(parse(text = statement))
+    }
+    if (nvarX == 1) {
+        for (i in 1:1) {
+            stmt <- paste(stmt, "newstrata$X", i, ",", sep = "")
+            stmt2 <- paste(stmt2, "'X", i, "',", sep = "")
+            stmt3 <- paste(stmt3, "matstrata$X", i, ",", sep = "")
+        }
+        stmt <- paste(stmt, "newstrata$X", nvarX, "))", sep = "")
+        eval(parse(text = stmt))
+        stmt2 <- paste(stmt2, "'X", nvarX, "')", sep = "")
+        eval(parse(text = stmt2))
+        stmt3 <- paste(stmt3, "matstrata$X", nvarX, sep = "")
+        statement <- paste("matstrord <- matstrata[order(matstrata$DOM1,matstrata$AGGR_STRATUM,", 
+            stmt3, "),]", sep = "")
+        eval(parse(text = statement))
+    }
     if (nvarX == 1) 
         newstrata$STRATUM <- newstrata$X1
     if (nvarX > 1) {
@@ -62,7 +61,7 @@ updateStrata <- function (strata, writeFile = "YES")
     }
     colnames(newstrata)[ncol(newstrata) - 1] <- c("LABEL")
     colnames(newstrata)[ncol(newstrata)] <- c("STRATUM")
-	colnames(newstrata) <- toupper(colnames(newstrata))
+    colnames(newstrata) <- toupper(colnames(newstrata))
     if (writeFile == "YES") 
         write.table(newstrata, file = "newstrata.txt", sep = "\t", 
             row.names = FALSE, col.names = TRUE, quote = FALSE)
