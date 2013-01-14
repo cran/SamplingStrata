@@ -1,4 +1,12 @@
-evalSolution <- function (frame, outstrata, nsampl=100) 
+# ----------------------------------------------------
+# Function that evaluates the adequacy of the found solution
+# by iterating the sample selection and calculating
+# CV's and differences between estimates and values of 
+# the parameters in the population frame
+# Author: Giulio Barcaroli
+# Date: 4 January 2012
+# ----------------------------------------------------
+evalSolution <- function (frame, outstrata, nsampl=100, writeFiles = FALSE) 
 {
     numY <- length(grep("Y", toupper(colnames(frame))))
 	numdom <- length(levels(as.factor(frame$DOMAINVALUE)))
@@ -13,7 +21,6 @@ evalSolution <- function (frame, outstrata, nsampl=100)
 
 		for (j in (1:nsampl)) {
             samp <- selectSample(frame, outstrata,verbatim=FALSE)
-#			samp <- read.csv("sample.csv")
             for (k in 1:numY) {
 				stmt <- paste("estim[,j,k] <- aggregate(samp$Y",k,"*samp$WEIGHT,by=list(samp$DOMAINVALUE),FUN=sum)[,2]",sep="")
                 eval(parse(text = stmt))
@@ -39,7 +46,8 @@ evalSolution <- function (frame, outstrata, nsampl=100)
         eval(parse(text = stmt))
     }	
 	cv$dom <- paste("DOM",c(1:numdom),sep="") 
-	write.table(cv,"expected_cv.csv",sep=",",row.names=FALSE,col.names=TRUE,quote=FALSE)
+	if (writeFiles == TRUE) 
+		write.table(cv,"expected_cv.csv",sep=",",row.names=FALSE,col.names=TRUE,quote=FALSE)
 	cv1 <- NULL
 	cv1$domainvalue <- rep((1:numdom),numY)
 	cv1$cv <- rep(0,(numY*numdom))
@@ -52,13 +60,8 @@ evalSolution <- function (frame, outstrata, nsampl=100)
 			eval(parse(text=stmt))
 		}
 	}
-  write.table(cv1,"expected_cv2.csv",sep=",",row.names=FALSE,col.names=TRUE,quote=FALSE)	
-	
-	
-#	cat("\n-----------------------------------")
-#	cat(" Expected Coefficients of variation")
-#	cat("-----------------------------------")
-#	cv
+	if (writeFiles == TRUE) 
+		write.table(cv1,"expected_cv1.csv",sep=",",row.names=FALSE,col.names=TRUE,quote=FALSE)	
 
     diff <- NULL
 	diff$dom <- rep(0,numdom*nsampl)
@@ -78,18 +81,21 @@ evalSolution <- function (frame, outstrata, nsampl=100)
 			}
 		}
 	}
-	write.table(diff,"differences.csv",sep=",",row.names=FALSE,col.names=TRUE,quote=FALSE)
+	if (writeFiles == TRUE) 
+		write.table(diff,"differences.csv",sep=",",row.names=FALSE,col.names=TRUE,quote=FALSE)
   if (numdom > 1) {
-	  pdf('cv.pdf', width=7, height=5)	
+	  if (writeFiles == TRUE) pdf('cv.pdf', width=7, height=5)	
+#	if (writeFiles == TRUE) png('cv.png', width=7, height=5, units="in", res=144)
 	  boxplot(val ~ cv, data = cv1,
-        col = "yellow",
+        col = "orange",
         main = "Distribution of CV's in the domains",
         xlab = "Variables Y",
         ylab = "Value of CV")
-	  dev.off()
+	  if (writeFiles == TRUE) dev.off()
     }
 	
-    pdf('differences.pdf', width=14, height=10)
+    if (writeFiles == TRUE) pdf('differences.pdf', width=14, height=10)
+#	if (writeFiles == TRUE) png('differences.png', width=7, height=5, units="in", res=144)
     k <- ceiling(numY/4)
     for (j in 1:k) {
         split.screen(c(2, 2))
@@ -97,7 +103,7 @@ evalSolution <- function (frame, outstrata, nsampl=100)
             if (i + 4 * (j - 1) <= numY) {
                 stmt <- paste("screen(", i, ")", sep = "")
                 eval(parse(text = stmt))
-				stmt <- paste("boxplot(diff",i,"~dom,data=diff,ylab='Differences',xlab='Domain',col = 'yellow')",sep="")
+				stmt <- paste("boxplot(diff",i,"~dom,data=diff,ylab='Differences',xlab='Domain',col = 'orange')",sep="")
 				eval(parse(text = stmt))
                 stmt <- paste("mtext(expression(Y", i , "), side=3, adj=0, cex=1.0, line=1)", 
                   sep = "")
@@ -106,7 +112,9 @@ evalSolution <- function (frame, outstrata, nsampl=100)
         }
         close.screen(all.screens = TRUE)
     }
-	dev.off()
+	if (writeFiles == TRUE) dev.off()
+	results <- list(coeff_var=cv1,bias=diff)
+	return(results)
 
 
 }

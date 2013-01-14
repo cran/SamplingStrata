@@ -316,7 +316,7 @@ Default is "YES".
 \end{enumerate}
 In the case of the Swiss municipalities, this is a possible choice of the value of the parameters:
 <<frame20>>=
-outstrata <- optimizeStrata(
+solution <- optimizeStrata(
 	errors = swisserrors, 
 	strata = swissstrata, 
 	cens = NULL, 
@@ -331,12 +331,16 @@ outstrata <- optimizeStrata(
 	highvalue = 1e+08, 
 	suggestions = NULL,
 	realAllocation = TRUE,
-	writeFile = "YES")
-sum(ceiling(outstrata$SOLUZ))
+	writeFiles = TRUE)
+sum(ceiling(solution$aggr_strata$SOLUZ))
 @
 The execution of {\tt optimizeStrata} produces the solution of 7 different optimization problems, one for each domain.
 We have reported in Figure ~\ref{graph1} the convergence plot regarding the third domain. 
-
+The results of the execution are contained in the list 'solution', composed by two elements:
+\begin{enumerate}
+\item	{\tt solution\$indices}: the vector of the indices that indicates to what aggregated stratum each atomic stratum belongs;
+\item	{\tt solution\$aggr\_strata}: the dataframe containing information on the optimal aggregated strata. 
+\end{enumerate}
 
 \begin{figure}[htbp]
 \centering
@@ -356,7 +360,7 @@ new strata.
 \end{enumerate}
 The function is invoked in this way:
 <<frame21>>=
-newstrata <- updateStrata(swissstrata)
+newstrata <- updateStrata(swissstrata, solution, writeFiles = TRUE)
 @ 
 Now, the atomic strata are associated to the aggregate strata defined in the optimal solution, by means of the variable
 $LABEL$. If we want to analyse in detail the new structure of the stratification, we can look at the 'strata\_aggregation.txt' 
@@ -377,7 +381,7 @@ Once the optimal stratification has been obtained, to be operational we need to 
 \end{enumerate}
 As for the first, we execute the following command:
 <<frame22>>=
-framenew <- updateFrame(swissframe,newstrata)
+framenew <- updateFrame(swissframe, newstrata, writeFiles=TRUE)
 @ 
 The function {\tt updateFrame} receives as arguments the indication of the dataframe in which the frame information is memorised, 
 and of the dataframe produced by the execution of the {\tt updateStrata} function.
@@ -386,7 +390,7 @@ strata produced by the optimisation step.
 The allocation of units is contained in the 'soluz' column of the dataset 'outstrata.txt'. At this point it is possible to select the 
 sample from the new version of the frame:
 <<frame23>>=
-sample <- selectSample(framenew,outstrata)
+sample <- selectSample(framenew, solution$aggr_strata, writeFiles=TRUE)
 @  
 that produces two .csv files:
 \begin{enumerate}
@@ -403,7 +407,7 @@ run a simulation, based on the selection of a desired number of samples from the
 as the best, has been applied.
 The user can invoke this function also indicating the number of samples to be drawn:
 <<frame24,results=hide>>=
-evalSolution(framenew,outstrata,nsampl=50) 
+evalSolution(framenew, solution$aggr_strata, nsampl=50, writeFiles=TRUE) 
 @
 For each drawn sample, the estimates related to the Y's are calculated. 
 Their mean and standard deviation are also computed, in order to produce the CV related to each variable in every domain. These CV's are written to an external csv file:

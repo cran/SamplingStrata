@@ -127,6 +127,7 @@ Giulio Barcaroli
 \dontrun{
 #------------------------------------------------------------
 # data setting
+library(SamplingStrata)
 data(swissstrata)
 data(swisserrors)
 data(swissframe)
@@ -137,34 +138,34 @@ strata <- swissstrata[swissstrata$DOM1 == 1,]
 errors <- swisserrors[swisserrors$domainvalue == 1,]
 #------------------------------------------------------------
 # parameters setting
-noptim <- 6 # Number of runs
+noptim <- 8 # Number of runs
 nsampl <- 100 # Number of samples to be drawn after each optimization
-initialStrata <- rep(nrow(strata),noptim) # Number of initial strata 
+initialStrata <- ceiling(c(1:noptim)*0.1*(nrow(strata))) # Number of initial strata
 addStrataFactor <- rep(0.01,noptim) # Rate for increasing initial strata
 minnumstr <- rep(2,noptim) # Minimum number of units per stratum
-iter <- c(50,50,50,50,50,50) # Number of iterations for each optimization
+iter <- rep(200,noptim) # Number of iterations for each optimization
 pops <- rep(20,noptim) # Number of solutions for each iteration
-mut_chance <- c(0.012,0.009,0.007,0.005,0.003,0.001) # Mutation chance
+mut_chance <- rep(0.004,noptim) # Mutation chance
 elitism_rate <- rep(0.2,noptim) # Elitism rate
 #------------------------------------------------------------
 tuneParameters (
-		noptim,
-		nsampl,
-		frame,
-		errors = errors, 
-		strata = strata,
-		cens = NULL, 
-		strcens = FALSE,
-		alldomains = FALSE,
-		dom = 1,			
-		initialStrata, 
-		addStrataFactor, 
-		minnumstr, 
-		iter, 
-		pops, 
-		mut_chance, 
-		elitism_rate
-		)
+  noptim,
+  nsampl,
+  frame,
+  errors = errors, 
+  strata = strata,
+  cens = NULL, 
+  strcens = FALSE,
+  alldomains = FALSE,
+  dom = 1,			
+  initialStrata, 
+  addStrataFactor, 
+  minnumstr, 
+  iter, 
+  pops, 
+  mut_chance, 
+  elitism_rate
+  )
 }
 }
 \keyword{ survey }

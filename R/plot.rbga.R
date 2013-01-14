@@ -1,3 +1,7 @@
+#-------------------------------------------------
+# This function has been taken from the package 
+# "genalg" by E. Willighagen available on the CRAN
+#-------------------------------------------------
 plot.rbga <- function(x, type = "default", breaks = 10, ...) {
     rbga.object <- x
     if ((type == "trend") & (rbga.object$type == "floats chromosome")) {

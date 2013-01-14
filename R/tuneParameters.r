@@ -1,3 +1,9 @@
+# ----------------------------------------------------
+# Function to choose suitable values of the parameters
+# for the function "optimizeStrata"
+# Author: Giulio Barcaroli
+# Date: 4 January 2012
+# ----------------------------------------------------
 tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = strata, 
     cens = NULL, strcens = FALSE, alldomains = FALSE, dom = 1, 
     initialStrata, addStrataFactor, minnumstr, iter, pops, mut_chance, 
@@ -71,12 +77,12 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
     file.remove("iteration.txt")
     file.remove("tuning.txt")
     for (i in (1:noptim)) {
-        outstrata <- optimizeStrata(errors = errors, strata = strata, 
+        solution <- optimizeStrata(errors = errors, strata = strata, 
             cens = NULL, strcens = FALSE, alldomains = FALSE, 
             dom = dom, initialStrata = initialStrata[i], addStrataFactor = addStrataFactor[i], 
             minnumstr = minnumstr[i], iter = iter[i], pops = pops[i], 
             mut_chance = mut_chance[i], elitism_rate = elitism_rate[i], 
-            realAllocation = TRUE, highvalue = 1e+08, suggestions = NULL)
+            realAllocation = TRUE, highvalue = 1e+08, suggestions = NULL, writeFiles=TRUE)
         file.remove("outstrata.txt")
         eval(parse(text = stmt))
         stmt <- paste("file.remove('strata_dom", dom, "_iter", 
@@ -106,7 +112,8 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
         stmt <- paste("file.copy('plotdom", dom, ".pdf','plot_dom", 
             dom, "_iter", i, ".pdf')", sep = "")
         eval(parse(text = stmt))
-        newstrata <- updateStrata(strata)
+		outstrata <- solution$aggr_strata
+        newstrata <- updateStrata(strata, solution)
         framenew <- updateFrame(frame, newstrata)
         simula$nstrati[i] <- nrow(outstrata)
         simula$cost[i] <- sum(ceiling(outstrata$SOLUZ))
@@ -134,20 +141,20 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
         sink()
     }
     ind <- which(simula$cost == min(simula$cost))
-    cat("\n--------------------")
-    cat("\nBest optimization: run # ", ind)
-    cat("\nRequired sample cost: ", simula$cost[ind])
-    cat("\n--------------------")
-    cat("\nValues of parameters")
-    cat("\n--------------------")
-    cat("\ninitialStrata: ", initialStrata[ind])
-    cat("\naddStrataFactor: ", addStrataFactor[ind])
-    cat("\nminnumstr: ", minnumstr[ind])
-    cat("\niter: ", iter[ind])
-    cat("\npops: ", pops[ind])
-    cat("\nmut_chance: ", mut_chance[ind])
-    cat("\nelitism_rate: ", elitism_rate[ind])
-    cat("\n--------------------")
+    cat("--------------------")
+    cat("Best optimization: run # ", ind)
+    cat("Required sample cost: ", simula$cost[ind])
+    cat("--------------------")
+    cat("Values of parameters")
+    cat("--------------------")
+    cat("initialStrata: ", initialStrata[ind])
+    cat("addStrataFactor: ", addStrataFactor[ind])
+    cat("minnumstr: ", minnumstr[ind])
+    cat("iter: ", iter[ind])
+    cat("pops: ", pops[ind])
+    cat("nmut_chance: ", mut_chance[ind])
+    cat("nelitism_rate: ", elitism_rate[ind])
+    cat("n--------------------")
     res <- paste("results_", dom, ".csv", sep = "")
     write.table(simula, res, row.names = FALSE, col.names = TRUE, 
         quote = FALSE, sep = ",")
@@ -185,7 +192,7 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
                 stmt <- paste("screen(", i, ")", sep = "")
                 eval(parse(text = stmt))
                 stmt <- paste("boxplot(diff", i + 4 * (j - 1), 
-                  "~nopt,data=differ,xlab = 'Runs')", 
+                  "~nopt,data=differ,xlab = 'Runs',col='orange')", 
                   sep = "")
                 eval(parse(text = stmt))
                 stmt <- paste("mtext(expression(Y", i + 

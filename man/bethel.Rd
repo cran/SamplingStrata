@@ -56,7 +56,7 @@ if it it is lower than "epsilon", then the procedure stops
 A vector containing the computed optimal allocation
 }
 \author{
-Daniela Pagliuca, Teresa Buglielli
+Daniela Pagliuca with contributions from Teresa Buglielli and Giulio Barcaroli
 }
 
 \examples{

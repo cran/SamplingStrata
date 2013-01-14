@@ -1,10 +1,12 @@
 #
 # --------------------------------------------------------------------------
 # Function for selecting a sample on the basis of the
-# result of optimal stratification and allocation Authors:
-# Giulio Barcaroli, Diego Zardetto
+# result of optimal stratification and allocation 
+# Authors: Giulio Barcaroli 
+# with a contribution from Diego Zardetto
+# Date: 4 January 2012
 # --------------------------------------------------------------------------
-selectSample <- function(frame, outstrata, writeFile = "YES",verbatim=TRUE) {
+selectSample <- function(frame, outstrata, writeFiles = FALSE,verbatim=TRUE) {
     strata.sample <- function(frame, strata, nh, repl) {
         stratodist <- table(frame[, strata])
         stratocum <- c(0, cumsum(stratodist))
@@ -26,23 +28,42 @@ selectSample <- function(frame, outstrata, writeFile = "YES",verbatim=TRUE) {
     samptot <- NULL
     chktot <- NULL
     # begin domains cycle
-    for (d in (1:numdom)) {
-        domframe <- frame[frame$DOMAINVALUE == d, ]
-        domstrata <- outstrata[outstrata$DOM1 == d, ]
-        strataord <- domstrata[order(domstrata$STRATO), ]
-        lista <- domframe
-        lista$STRATO <- lista$LABEL
-        listaord <- lista[order(lista$STRATO), ]
-        s <- strata.sample(listaord, c("STRATO"), strataord$SOLUZ, 
-            repl = FALSE)
-        samp <- data.frame(listaord[s, ], WEIGHTS = attr(s, "WEIGHTS"))
-        samptot <- rbind(samptot, samp)
-        chk <- data.frame(DOMAINVALUE = d, STRATO = strataord$STRATO, 
-            Nh_frame = as.vector(table(listaord$STRATO)), Nh_strata = strataord$N, 
-            planned_units = strataord$SOLUZ, selected_units = as.vector(table(samp$STRATO)), 
-            sum_of_wgts = tapply(samp$WEIGHTS, samp$STRATO, sum))
-        chktot <- rbind(chktot, chk)
-    }  # end domain cycle
+	if (numdom > 1) {
+		for (d in (1:numdom)) {
+			domframe <- frame[frame$DOMAINVALUE == d, ]
+			domstrata <- outstrata[outstrata$DOM1 == d, ]
+			strataord <- domstrata[order(domstrata$STRATO), ]
+			lista <- domframe
+			lista$STRATO <- lista$LABEL
+			listaord <- lista[order(lista$STRATO), ]
+			s <- strata.sample(listaord, c("STRATO"), strataord$SOLUZ, 
+				repl = FALSE)
+			samp <- data.frame(listaord[s, ], WEIGHTS = attr(s, "WEIGHTS"))
+			samptot <- rbind(samptot, samp)
+			chk <- data.frame(DOMAINVALUE = d, STRATO = strataord$STRATO, 
+				Nh_frame = as.vector(table(listaord$STRATO)), Nh_strata = strataord$N, 
+				planned_units = strataord$SOLUZ, selected_units = as.vector(table(samp$STRATO)), 
+				sum_of_wgts = tapply(samp$WEIGHTS, samp$STRATO, sum))
+			chktot <- rbind(chktot, chk)
+		}  # end domain cycle
+	}
+	if (numdom == 1) {
+		domframe <- frame
+		domstrata <- outstrata
+		strataord <- domstrata[order(domstrata$STRATO), ]
+		lista <- domframe
+		lista$STRATO <- lista$LABEL
+		listaord <- lista[order(lista$STRATO), ]
+		s <- strata.sample(listaord, c("STRATO"), strataord$SOLUZ, 
+				repl = FALSE)
+		samp <- data.frame(listaord[s, ], WEIGHTS = attr(s, "WEIGHTS"))
+		samptot <- rbind(samptot, samp)
+		chk <- data.frame(DOMAINVALUE = strataord$DOM1, STRATO = strataord$STRATO, 
+				Nh_frame = as.vector(table(listaord$STRATO)), Nh_strata = strataord$N, 
+				planned_units = strataord$SOLUZ, selected_units = as.vector(table(samp$STRATO)), 
+				sum_of_wgts = tapply(samp$WEIGHTS, samp$STRATO, sum))
+		chktot <- rbind(chktot, chk)
+	}
     colnames(samptot) <- toupper(colnames(samptot))
     colnames(chktot) <- toupper(colnames(chktot))
     cens <- sum((chktot$NH_STRATA == chktot$PLANNED_UNITS) == 
@@ -58,10 +79,10 @@ selectSample <- function(frame, outstrata, writeFile = "YES",verbatim=TRUE) {
 			cat("\nfrom which have been selected ", cens.units, "units\n")
 		}
 	}
-    if (writeFile == "YES") 
+    if (writeFiles == TRUE) 
         write.table(samptot, "sample.csv", sep = ",", row.names = FALSE, 
             col.names = TRUE, quote = FALSE)
-    if (writeFile == "YES") 
+    if (writeFiles == TRUE) 
         write.table(chktot, "sampling check.csv", sep = ",", 
             row.names = FALSE, col.names = TRUE, quote = FALSE)
     outstrata$FPC <- outstrata$SOLUZ/outstrata$N

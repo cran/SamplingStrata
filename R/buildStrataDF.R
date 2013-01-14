@@ -1,3 +1,9 @@
+# ----------------------------------------------------
+# Function to produce the "strata" dataframe
+# starting from the available sampling frame
+# Author: Giulio Barcaroli
+# Date: 4 January 2012
+# ----------------------------------------------------
 buildStrataDF <- function(dataset) {
     # stdev1 is for sampling data
     stdev1 <- function(x, w) {

@@ -1,21 +1,17 @@
-#
-# ------------------------------------------------------------------------
-# Function: strataGenalg
-# Version: 9 August 2010 
-# Author: Giulio Barcaroli 
+# ----------------------------------------------------
 # Optimisation of sampling units multivariate
 # allocation with Genetic Algorithm together with strata
 # determination 
-# ------------------------------------------------------------------------
-strataGenalg <- function(errors, strata, cens = NULL, strcens = FALSE, 
+# Author: Giulio Barcaroli
+# Date: 4 January 2012
+# ----------------------------------------------------
+strataGenalg <- function(errors, strata, cens, strcens, 
     dominio, initialStrata, minnumstr, iter, pops, mut_chance, 
-    elitism_rate, addStrataFactor, highvalue, suggestions, realAllocation) {
-    # options(echo=FALSE)
+    elitism_rate, addStrataFactor, highvalue, suggestions, realAllocation,
+	writeFiles) {
     # --------------------------------------------------------------------------
     colnames(strata) <- toupper(colnames(strata))
     colnames(errors) <- toupper(colnames(errors))
-    fileres <- paste("results", dominio, ".txt", sep = "")
-    sink(file = fileres)
     #
     # --------------------------------------------------------------------------
     nvar <- ncol(errors) - 1
@@ -25,10 +21,15 @@ strataGenalg <- function(errors, strata, cens = NULL, strcens = FALSE,
         nstrcens <- nrow(cens)
     #
     # --------------------------------------------------------------------------
-    # Dimension of solutions vector
-    totcard <- nrow(strata)
-    # Setting maximum number of strata initialStrata <-
-    # ceiling(nrow(strata) * numstrataPar)
+    # Preparation of solution list
+    v <- rep(0,nrow(strata))
+	outstrata <- strata
+	solution <- list(v,outstrata)
+    # --------------------------------------------------------------------------  
+	if (writeFiles == TRUE) {
+		fileres <- paste("results", dominio, ".txt", sep = "")
+		sink(file = fileres)
+	}	
     cat("\n---------------------------------------------")
     cat("\nOptimal stratification with Genetic Algorithm")
     cat("\n---------------------------------------------")
@@ -52,7 +53,7 @@ strataGenalg <- function(errors, strata, cens = NULL, strcens = FALSE,
         realAllocation)
     if (!is.null(suggestions)) 
         cat("\nSuggestion: ", suggestions[1, ])
-    sink()
+    if (writeFiles == TRUE) sink()
     #
     # --------------------------------------------------------------------------
     varloop <- c(1:nvar)
@@ -88,8 +89,10 @@ strataGenalg <- function(errors, strata, cens = NULL, strcens = FALSE,
         # initialStrata)
         soluz <- bethel(strcor, errors, minnumstr, printa = FALSE, 
             realAllocation = realAllocation)
-        sink()
-        sink(file = fileres, append = TRUE)
+		if (writeFiles == TRUE) {
+			sink()
+			sink(file = fileres, append = TRUE)
+		}
         ntot <- sum(soluz)
         # if (dimens > (initialStrata-1)) ntot <- highvalue
         # cat('\nSolution: ',indices)
@@ -116,27 +119,36 @@ strataGenalg <- function(errors, strata, cens = NULL, strcens = FALSE,
     # --------------------------------------------------------------------------
     # Genetic algorithm execution
     # --------------------------------------------------------------------------
-    stringMin <- rep(1, totcard)
-    stringMax <- rep(initialStrata, totcard)
-    rbga.results <- rbga(stringMin, stringMax, suggestions = suggestions, 
+    stringMin <- rep(1, nrow(strata))
+    stringMax <- rep(initialStrata, nrow(strata))
+	verb = FALSE
+	show = FALSE
+	if (writeFiles == TRUE) {
+		verb = TRUE
+		show = TRUE
+	}
+	    rbga.results <- rbga(stringMin, stringMax, suggestions = suggestions, 
         monitorFunc = monitor, iters = iter, popSize = pops, 
         mutationChance = mut_chance, elitism_rate, addStrataFactor, 
-        evalFunc = evaluate, verbose = TRUE, showSettings = TRUE, 
+        evalFunc = evaluate, verbose = verb, showSettings = show, 
         )
     #
     # --------------------------------------------------------------------------
     # Results
     # --------------------------------------------------------------------------
-    stmt <- paste("pdf('plotdom", dominio, ".pdf')", sep = "")
-    eval(parse(text = stmt))
+	if (writeFiles == TRUE) {
+#		stmt <- paste("png('plotdom", dominio, ".png',height=5, width=7, units='in', res=144)", sep = "")
+		stmt <- paste("pdf('plotdom", dominio, ".pdf',height=5, width=7)", sep = "")
+		eval(parse(text = stmt))
+	}
     plot(rbga.results)
     title(paste("Domain #", dominio, " - Sample cost", rbga.results$best[iter]), 
         col.main = "red")
-    dev.off()
+    if (writeFiles == TRUE) dev.off()
     plot(rbga.results)
     title(paste("Domain #", dominio, " - Sample cost", rbga.results$best[iter]), 
         col.main = "red")
-    summary(rbga.results, echo = TRUE)
+    # summary(rbga.results, echo = TRUE)
     # print(paste('Sample size:
     # ',round(rbga.results$best[iter]))) cat(' *** Sample size:
     # ',round(rbga.results$best[iter]))
@@ -145,29 +157,34 @@ strataGenalg <- function(errors, strata, cens = NULL, strcens = FALSE,
     # --------------------------------------------------------------------------
     v <- floor(rbga.results$population[rbga.results$evaluations == 
         min(rbga.results$evaluations), ])
-    if (class(v) == "matrix") 
-        v <- as.vector(v[1, ])
-    stmt <- paste("write.table(v,'solution", dominio, ".txt',row.names=FALSE,col.names=FALSE,sep='\t',quote=FALSE)", 
-        sep = "")
-    eval(parse(text = stmt))
+    if (class(v) == "matrix") v <- as.vector(v[1, ])
+	if (writeFiles == TRUE) {
+		stmt <- paste("write.table(v,'solution", dominio, 
+					".txt',row.names=FALSE,col.names=FALSE,sep='\t',quote=FALSE)", 
+					sep = "")
+		eval(parse(text = stmt))
+	}
     censiti <- 0
     strcor <- aggrStrata(strata, nvar, v, censiti, dominio)
     if (strcens == TRUE) 
         strcor <- rbind(strcor, cens)
-    dimens <- nrow(strcor)
     soluz <- bethel(strcor, errors, minnumstr, printa = FALSE, 
         realAllocation = realAllocation)
-    sink()
-    sink(file = fileres, append = TRUE)
-    cat("\n *** Sample cost: ", sum(soluz))
-    cat(paste("\n *** Number of strata: ", dimens))
-    risulta <- cbind(strcor, soluz)
-    colnames(risulta) <- toupper(colnames(risulta))
-    fileout <- paste("outstrata", dominio, ".txt", sep = "")
-    write.table(risulta, file = fileout, sep = "\t", row.names = FALSE, 
-        col.names = TRUE, quote = FALSE)
-    cat("\n...written output to", fileout)
-    # proc.time()
-    sink()
+	risulta <- cbind(strcor, soluz)
+	if (writeFiles == TRUE) {
+		sink()
+		sink(file = fileres, append = TRUE)
+		cat("\n *** Sample cost: ", sum(soluz))
+		cat(paste("\n *** Number of strata: ", nrow(strcor)))
+		colnames(risulta) <- toupper(colnames(risulta))
+		fileout <- paste("outstrata", dominio, ".txt", sep = "")
+		write.table(risulta, file = fileout, sep = "\t", row.names = FALSE, 
+			col.names = TRUE, quote = FALSE)
+		cat("\n...written output to", fileout)
+    	sink()
+	}
+	solution[[1]] <- v
+	solution[[2]] <- risulta
+	return(solution)
     # End function
 }

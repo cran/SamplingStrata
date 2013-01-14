@@ -1,3 +1,10 @@
+# ----------------------------------------------------
+# Function to aggregate initial atomic strata
+# on the basis of the current solution 
+# expressed by a vector of integer values
+# Author: Giulio Barcaroli
+# Date: 4 January 2012
+# ----------------------------------------------------
 aggrStrata <- function(strata, nvar, vett, censiti, dominio) {
     strata <- cbind(strata, vett)
     varloop <- c(1:nvar)

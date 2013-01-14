@@ -16,7 +16,7 @@ If no domains have been defined, this variable will contains all 1's, but it mus
  
 }
 \usage{
-updateFrame(frame, newstrata)
+updateFrame(frame, newstrata, writeFiles = FALSE)
 }
 \arguments{
   \item{frame}{
@@ -26,6 +26,10 @@ updateFrame(frame, newstrata)
   This is the (mandatory) dataframe containing the information related to the optimisation applied to 
   initial stratification (new labels applied to atomic strata). It is produced by executing 
   the "updateStrata" function. 
+}
+  \item{writeFiles}{
+  Flag to write or not the new sampling frame into the working directory.
+  Default is "FALSE"
 }
 }
 
@@ -46,7 +50,7 @@ library(SamplingStrata)
 data(swisserrors)
 data(swissstrata)
 # optimisation of sampling strata
-outstrata <- optimizeStrata ( 
+solution <- optimizeStrata ( 
     errors = swisserrors, 
     strata = swissstrata, 
     cens = NULL,
@@ -60,12 +64,12 @@ outstrata <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = "YES")
+	writeFiles = FALSE)
 # updating sampling strata with new strata labels
-newstrata <- updateStrata(swissstrata)
+newstrata <- updateStrata(swissstrata, solution, writeFiles = TRUE)
 # updating sampling frame with new strata labels
 data(swissframe)
-framenew <- updateFrame(frame=swissframe,newstrata=newstrata)
+framenew <- updateFrame(frame=swissframe, newstrata=newstrata, writeFiles = TRUE)
 }
 }
 \keyword{ survey }

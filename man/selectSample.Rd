@@ -22,7 +22,7 @@ One more .csv file is produced ("sampling check"), containing coeherence checks 
 
 }
 \usage{
-selectSample(frame, outstrata, writeFile = "YES",verbatim=TRUE)
+selectSample(frame, outstrata, writeFiles = FALSE,verbatim=TRUE)
 }
 \arguments{
   \item{frame}{
@@ -35,9 +35,9 @@ selectSample(frame, outstrata, writeFile = "YES",verbatim=TRUE)
   stratification obtained by the execution of "optimizeStrata" function.
   Name of stratum variable must be 'strato'.
 }
-  \item{writeFile}{
+  \item{writeFiles}{
   Indicates if at the end of the processing the resulting strata will be outputted in a delimited file.
-  Default is "YES".
+  Default is "FALSE".
 }
   \item{verbatim}{
   Indicates if information on the drawn sample must be printed or not.
@@ -50,7 +50,7 @@ A dataframe containing the sample
 }
 
 \author{
-Giulio Barcaroli, Diego Zardetto
+Giulio Barcaroli with contribution from Diego Zardetto
 }
 
  
@@ -63,7 +63,7 @@ library(SamplingStrata)
 data(swisserrors)
 data(swissstrata)
 # optimisation of sampling strata
-outstrata <- optimizeStrata ( 
+solution <- optimizeStrata ( 
     errors = swisserrors, 
     strata = swissstrata, 
     cens = NULL,
@@ -77,14 +77,14 @@ outstrata <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = "YES")
+	writeFiles = FALSE)
 # updating sampling strata with new strata labels
-newstrata <- updateStrata(swissstrata)
+newstrata <- updateStrata(swissstrata, solution)
 # updating sampling frame with new strata labels
 data(swissframe)
 framenew <- updateFrame(frame=swissframe,newstrata=newstrata)
 # selection of sample
-sample <- selectSample(frame = framenew, outstrata = outstrata, writeFile="YES")
+sample <- selectSample(frame = framenew, outstrata = solution$aggr_strata, writeFile=FALSE, verbatim=TRUE)
 head(sample)
 }
 }

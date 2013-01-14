@@ -2,9 +2,9 @@ Package: SamplingStrata
 Type: Package
 Title: Optimal stratification of sampling frames for multipurpose
         sampling surveys
-Version: 1.0
-Date: 2012-11-30
-Author: Giulio Barcaroli
+Version: 1.0-1
+Date: 2013-01-14
+Author: Giulio Barcaroli, Daniela Pagliuca and Egon Willighagen
 Maintainer: Giulio Barcaroli <barcarol@istat.it>
 Description: In the field of stratified sampling design, this package
         offers an approach for the determination of the best
@@ -20,22 +20,12 @@ Description: In the field of stratified sampling design, this package
         Functions in the package allows to: (a) analyse the obtained
         results of the optimisation step; (b) assign the new strata
         labels to the sampling frame; (c) select a sample from the new
-        frame accordingly to the best allocation.  It is also possible
-        to automatically generate the most important input to the
-        optimisation step, i.e.  the "strata" dataframe, containing
-        information (means and standard deviations) regarding the
-        distributions of the target variables in the different strata,
-        using the sampling frame or using data from previous rounds of
-        the same survey.  As auxiliary variables that concur to the
-        stratification can be only of the categorical type, the package
-        offers a function that allows to transform continuous variables
-        into categorical ordinal ones by applying a k-means univariate
-        clustering method. Functions for the execution of the genetic
-        algorithm are a modified version of the functions in the
-        "genalg" package.
-License: GPL
+        frame accordingly to the best allocation.  Functions for the
+        execution of the genetic algorithm are a modified version of
+        the functions in the 'genalg' package.
+License: GPL (>= 2)
 LazyLoad: yes
 Depends: R (>= 2.10.0)
-Packaged: 2012-12-04 12:37:56 UTC; barcarol
+Packaged: 2013-01-16 17:43:57 UTC; barcarol
 Repository: CRAN
-Date/Publication: 2012-12-04 17:13:37
+Date/Publication: 2013-01-16 20:54:08

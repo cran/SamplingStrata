@@ -25,7 +25,7 @@ This function runs a set of other functions to optimise the stratification of a 
 	highvalue = 1e+08, 
 	suggestions = NULL,
 	realAllocation = FALSE,
-	writeFile = "YES"
+	writeFiles = FALSE
 	)
 }
 \arguments{
@@ -90,14 +90,15 @@ This function runs a set of other functions to optimise the stratification of a 
   \item{realAllocation}{
   If FALSE, the allocation is based on INTEGER values; if TRUE, the allocation is based on REAL values
 }  
-  \item{writeFile}{
-  Indicates if at the end of the processing the resulting strata will be outputted in a delimited file.
-  Default is "YES".
+  \item{writeFiles}{
+  Indicates if the various dataframes and plots produced during the execution have to be written in the working
+  directory.
+  Default is "FALSE".
 }
 }
 
 \value{
-A dataframe containing optimal strata
+A list containing (1) the vector of the solution and (2) the optimal aggregated strata
 }
 
 \author{
@@ -113,7 +114,7 @@ library(SamplingStrata)
 data(errors)
 data(strata)
 # optimisation of sampling strata
-outstrata <- optimizeStrata ( 
+solution <- optimizeStrata ( 
     errors = errors, 
     strata = strata, 
     cens = NULL,
@@ -127,8 +128,8 @@ outstrata <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = "YES")
-sum(ceiling(outstrata$SOLUZ))
+	writeFile = FALSE)
+sum(ceiling(solution$aggr_strata$SOLUZ))
 head(outstrata)
 }
 #
@@ -139,7 +140,7 @@ library(SamplingStrata)
 data(swisserrors)
 data(swissstrata)
 # optimisation of sampling strata
-outstrata <- optimizeStrata ( 
+solution <- optimizeStrata ( 
     errors = swisserrors, 
     strata = swissstrata, 
     cens = NULL,
@@ -153,9 +154,9 @@ outstrata <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = "YES")
-sum(ceiling(outstrata$SOLUZ))
-head(outstrata)
+	writeFile = FALSE)
+sum(ceiling(solution$aggr_strata$SOLUZ))
+head(solution$aggr_strata)
 }
 }
 \keyword{ survey }

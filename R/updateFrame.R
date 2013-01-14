@@ -1,9 +1,15 @@
-updateFrame <- function(frame, newstrata) {
+# ----------------------------------------------------
+# Function to assign labels of optimal aggregated strata
+# to sampling frame
+# Author: Giulio Barcaroli
+# Date: 4 January 2012
+# ----------------------------------------------------
+updateFrame <- function(frame, newstrata, writeFiles = FALSE) {
     colnames(frame) <- toupper(colnames(frame))
     colnames(newstrata) <- toupper(colnames(newstrata))
     nvarX <- length(grep("X", names(newstrata)))
     if (nvarX == 1) 
-        frame$STRATUM <- newstrata$X1
+        frame$STRATUM <- frame$X1
     if (nvarX > 1) {
         stmt <- NULL
         stmt <- "frame$STRATUM <- paste("
@@ -19,9 +25,13 @@ updateFrame <- function(frame, newstrata) {
         newstrata$LABEL))
     colnames(labels) <- c("STRATUM", "DOMAINVALUE", "LABEL")
     framenew <- merge(frame, labels, by = c("DOMAINVALUE", "STRATUM"))
+	framenew$STRATUM <- as.factor(framenew$STRATUM)
+	framenew$LABEL <- as.character(framenew$LABEL)
+	framenew$LABEL <- as.integer(framenew$LABEL)
     colnames(framenew) <- toupper(colnames(framenew))
-    write.table(framenew, "framenew.txt", row.names = FALSE, 
-        sep = "\t", quote = FALSE)
-    framenew <- read.delim("framenew.txt")
+	if (writeFiles == TRUE) {
+		write.table(framenew, "framenew.txt", row.names = FALSE, 
+			sep = "\t", quote = FALSE)
+	}
     return(framenew)
 }

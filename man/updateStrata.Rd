@@ -15,16 +15,20 @@ Also a second delimited file ("strata_aggregation.txt") will be outputted,
 containing the indication of the relations bewteen atomic and aggregated strata. 
 }
 \usage{
-updateStrata(strata, writeFile = "YES")
+updateStrata(strata, solution, writeFiles = FALSE)
 }
 \arguments{
   \item{strata}{
   This is the (mandatory) dataframe containing the information related to the atomic strata to which the 
   optimisation has been applied to. 
 }
-  \item{writeFile}{
+  \item{solution}{
+  List obtained by the execution of the "optimizeStrata" function. The first element of the list is the vector
+  of the indices corresponding to the optimal solution.
+}
+  \item{writeFiles}{
   Indicates if at the end of the processing the resulting strata will be outputted in a delimited file.
-  Default is "YES".
+  Default is "FALSE".
 }
 }
 
@@ -46,7 +50,7 @@ library(SamplingStrata)
 data(errors)
 data(strata)
 # optimisation of sampling strata
-outstrata <- optimizeStrata ( 
+solution <- optimizeStrata ( 
     errors = errors, 
     strata = strata, 
     cens = NULL,
@@ -60,9 +64,9 @@ outstrata <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = "YES")
+	writeFiles = FALSE)
 # updating sampling strata with new strata labels
-newstrata <- updateStrata(strata)
+newstrata <- updateStrata(strata, solution)
 }
 #
 # The following example is realistic, but is time consuming
@@ -72,7 +76,7 @@ library(SamplingStrata)
 data(swisserrors)
 data(swissstrata)
 # optimisation of sampling strata
-outstrata <- optimizeStrata ( 
+solution <- optimizeStrata ( 
     errors = swisserrors, 
     strata = swissstrata, 
     cens = NULL,
@@ -86,9 +90,9 @@ outstrata <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = "YES")
+	writeFiles = FALSE)
 # updating sampling strata with new strata labels
-newstrata <- updateStrata(swissstrata)
+newstrata <- updateStrata(swissstrata, solution)
 }
 }
 \keyword{ survey }
