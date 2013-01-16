@@ -1,3 +1,10 @@
+# ----------------------------------------------------
+# Function to transform cotinuous stratification
+# variables into ordered factors by using the
+# k-means clustered method
+# Author: Giulio Barcaroli
+# Date: 4 January 2012
+# ----------------------------------------------------
 var.bin <- function(x, bins = 3, iter.max = 100) {
     km <- kmeans(x, bins, iter.max = 100)
     if (class(x) != "numeric" & class(x) != "integer") 

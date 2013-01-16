@@ -1,0 +1,29 @@
+Changes in Version 1.0-1
+
+  o Bug fix for old releases.
+
+  o The object returned by function "optimizeStrata" is no more a dataframe but a list:
+	* the first element of the list is the solution vector (solution$indices)
+	* the second element of the list is the dataframe containing aggregated strata
+	  (solution$aggr_strata)
+
+  o In all the functions that previously produced .csv files and .pdf plots in the working 
+  directory, as a default this is no more the current behaviour. To write these files, it
+  is now necessary to set the "writeFiles" flag to TRUE
+
+
+Changes in Version 1.0
+
+  o Bug fix for old releases.
+
+  o Two new functions:
+    * "evalSolution", to evaluate the found solution in terms of expected target variables 
+	precision and bias obtainable by samples drawn from the otpimized frame;
+    * "tuneParameters", to determine the best combination of values to assign to the parameters 
+	necessary for the execution of the genetic algorithm used for the optimization of the frame 
+	stratification.
+
+  o A demonstration on the use of  the "tuneParameters" function is in the vignette "tuneParameters.pdf" 
+  contained in the \inst\doc folder.
+
+ 

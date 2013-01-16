@@ -1,10 +1,9 @@
-# Version 2 of genetic algorithm - 11 august 2010
-# It optimizes a binary chromosome using a genetic algorithm.
-#
-# string           = string to optimize
-# popSize          = the population size
-# iters            = number of generations
-# mutationChance   = chance that a var in the string gets mutated
+#-----------------------------------------------------------------
+# This function is a modified version of the corresponding one
+# in the package "genalg" by E. Willighagen available on the CRAN
+# Date of last modification: January 3, 2013
+# Modified by Giulio Barcaroli
+#-----------------------------------------------------------------
 rbga <- function(stringMin=c(), stringMax=c(),
                  suggestions=NULL,
                  popSize=200, iters=100, 
@@ -25,7 +24,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
         mutationChance = 1/(vars+1);
     }
     if (is.na(elitism)) {
-    # Modifica 1 del programma: definizione dell'elitismo
+    # Modification 1: elitism definition
        elitism = popSize*elitism_rate
     #   elitism = floor(popSize/5)
     }
@@ -76,7 +75,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
             # start with an random population
             population = matrix(nrow=popSize, ncol=vars);
             # fill values
-# Modifica : generazione della popolazione iniziale fatta con "sample.int" per avere numeri interi
+# Modification 2: generation of the initial population by using "sample.int" to get integer numbers
             for (var in 1:vars) {
 #                population[,var] = stringMin[var] +
 #                                   runif(popSize)*(stringMax[var]-stringMin[var]);
@@ -104,7 +103,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
             }
             bestEvals[iter] = min(evalVals);
             meanEvals[iter] = mean(evalVals);
-			# Fa parte di modifica 4: mutationChance is increased in case of potential local minimum
+			# Modification 3: mutationChance is increased in case of potential local minimum
 #			if (iter > 1) {
 #				if (bestEvals[iter] == bestEvals[iter-1]) costante <- costante + 1
 #				if ((iters > 1000) & (costante > (iters / 100))) {
@@ -202,7 +201,6 @@ rbga <- function(stringMin=c(), stringMax=c(),
                                 
                                 # OPTION 2
                                 # mutate around solution
-                # Modifica 2 : modalità di mutazione
 #                                dempeningFactor = (iters-iter)/iters
 #                                direction       = sample(c(-1,1),1)
 #                                mutationVal     = (stringMax[var]-stringMin[var])*0.67
@@ -213,7 +211,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
 #                                if (mutation < stringMin[var]) 
 #                                    mutation = stringMin[var] +
 #                                               runif(1)*(stringMax[var]-stringMin[var]);
-              # Modifica 3 : possibilità di andare oltre il massimo                                 
+              # Modification 4 : possibility to go beyond the maximum                                 
                         #        if (mutation > stringMax[var]) 
                         #            mutation = stringMin[var] +
                         #                       runif(1)*(stringMax[var]-stringMin[var]);

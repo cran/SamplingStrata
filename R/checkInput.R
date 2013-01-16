@@ -42,7 +42,9 @@ checkInput <- function(errors = NULL, strata = NULL, sampframe = NULL) {
             perl = TRUE)) != sum(grepl("CV", toupper(colnames(errors)), 
             fixed = TRUE))) 
             stop("In strata dataframe the number of means and std deviations differs from the number of coefficient of variations in errors dataframe")
-    }
+		if (nrow(errors) != length(levels(as.factor(strata$DOM1))))
+			stop("In the 'errors' dataframe the number of domain values if different from the number of domain values in 'strata' dataframe")
+	}
     if (!is.null(sampframe)) {
         colnames(sampframe) <- toupper(colnames(sampframe))
         if (sum(grepl("X", colnames(sampframe))) < 1) 

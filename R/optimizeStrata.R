@@ -1,20 +1,21 @@
-#
-# --------------------------------------------------------------------------
-# Cycling function for genetic algorithm GA-based optimal
-# stratafication and optimal allocation Author: Giulio
-# Barcaroli
-# --------------------------------------------------------------------------
+# ----------------------------------------------------
+# Main for calling genetic algorithm GA-based optimal
+# stratification and optimal allocation 
+# cycling on different domains
+# Author: Giulio Barcaroli
+# Date: 4 January 2012
+# ----------------------------------------------------
 optimizeStrata <- function(errors, strata, cens = NULL, strcens = FALSE, 
     alldomains = TRUE, dom = NULL, initialStrata = nrow(strata), addStrataFactor = 0.01, 
     minnumstr = 2, iter = 20, pops = 20, mut_chance = 0.05, elitism_rate = 0.2, 
     highvalue = 1e+08, suggestions = NULL, realAllocation = FALSE, 
-    writeFile = "YES") {
-    # Check checkInput(errors,strata)
+    writeFiles = FALSE) {
     # --------------------------------------------------------------------------
     # Parameters
     # --------------------------------------------------------------------------
     colnames(errors) <- toupper(colnames(errors))
     colnames(strata) <- toupper(colnames(strata))
+	checkInput(errors,strata)
     erro <- split(errors, list(errors$DOMAINVALUE))
     stcamp <- split(strata, list(strata$DOM1))
     if (strcens == TRUE) 
@@ -24,30 +25,19 @@ optimizeStrata <- function(errors, strata, cens = NULL, strcens = FALSE,
     ndom <- length(levels(as.factor(strata$DOM1)))
     # begin alldomains = TRUE
     if (alldomains == TRUE) {
+		v <- NULL
+		outstrata <- NULL
         for (i in 1:ndom) {
             erro[[i]] <- erro[[i]][, -ncol(errors)]
             if (strcens == TRUE) 
                 cens <- stcens[[i]]
-            # statement <- paste('solut <-
-            # read.table('solutionNew',i,'.txt',header=TRUE)',sep='')
-            # eval(parse(text=statement)) sugg <-
-            # matrix(solut$stratonew,nrow=20,ncol=nrow(solut),byrow=TRUE)
-            strataGenalg(errors = erro[[i]], strata = stcamp[[i]], 
+            solut <- strataGenalg(errors = erro[[i]], strata = stcamp[[i]], 
                 cens = cens, strcens, dominio = i, initialStrata, 
                 minnumstr, iter, pops, mut_chance, elitism_rate, 
-                addStrataFactor, highvalue, suggestions, realAllocation)
-        }
-        
-        outstrata <- read.delim("outstrata1.txt")
-        colnames(outstrata) <- toupper(colnames(outstrata))
-        out <- NULL
-        if (ndom > 1) {
-            for (i in 2:ndom) {
-                statement <- paste("out<-read.delim(\"outstrata", 
-                  i, ".txt\")", sep = "")
-                eval(parse(text = statement))
-                outstrata <- rbind(outstrata, out)
-            }
+                addStrataFactor, highvalue, suggestions, realAllocation, 
+				writeFiles)
+			v <- c(v,solut[[1]])
+			outstrata <- rbind(outstrata, solut[[2]])
         }
     }
     # end alldomains = TRUE begin alldomains = FALSE
@@ -58,30 +48,29 @@ optimizeStrata <- function(errors, strata, cens = NULL, strcens = FALSE,
         erro[[i]] <- erro[[i]][, -ncol(errors)]
         if (strcens == TRUE) 
             cens <- stcens[[i]]
-        # statement <- paste('solut <-
-        # read.table('solutionNew',i,'.txt',header=TRUE)',sep='')
-        # eval(parse(text=statement)) sugg <-
-        # matrix(solut$STRATONEW,nrow=20,ncol=nrow(solut),byrow=TRUE)
-        strataGenalg(errors = erro[[i]], strata = stcamp[[i]], 
+        solut <- strataGenalg(errors = erro[[i]], strata = stcamp[[i]], 
             cens = cens, strcens, dominio = i, initialStrata, 
             minnumstr, iter, pops, mut_chance, elitism_rate, 
-            addStrataFactor, highvalue, suggestions, realAllocation)
-        stmt <- paste("outstrata <- read.delim('outstrata", i, 
-            ".txt')", sep = "")
-        eval(parse(text = stmt))
+            addStrataFactor, highvalue, suggestions, realAllocation,
+			writeFiles)
+		v <- solut[[1]]
+		outstrata <- solut[[2]]
     }
     
     # end alldomains = FALSE
+	colnames(outstrata) <- toupper(colnames(outstrata))
     dimens <- sum(outstrata$SOLUZ)
-    if (writeFile == "YES") 
-        write.table(outstrata, file = "outstrata.txt", sep = "\t", 
-            row.names = FALSE, col.names = TRUE, quote = FALSE)
+# Results
     cat("\n *** Sample size : ", dimens)
     cat("\n *** Number of strata : ", nrow(outstrata))
     cat("\n---------------------------")
-    cat("\n...written output to outstrata.txt")
-    sink()
-    return(outstrata)
+    if (writeFiles == TRUE) {
+        write.table(outstrata, file = "outstrata.txt", sep = "\t", 
+            row.names = FALSE, col.names = TRUE, quote = FALSE)
+			cat("\n...written output to outstrata.txt")
+			}
+	solution <- list(indices=v,aggr_strata=outstrata)
+    return(solution)
 }
 # End function
 

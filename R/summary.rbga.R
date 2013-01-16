@@ -1,9 +1,14 @@
+#-------------------------------------------------
+# This function has been taken from the package 
+# "genalg" by E. Willighagen available on the CRAN
+#-------------------------------------------------
 summary.rbga <-
 function(object, echo=FALSE, ...) {
     # should do object type checking here
     rbga.object = object
     
     output = paste(
+		"\n",
         "GA Settings", "\n",
 #        "  Type                  = ", rbga.object$type, "\n",
         "  Population size       = ", rbga.object$popSize, "\n",
