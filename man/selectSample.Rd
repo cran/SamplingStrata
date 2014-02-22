@@ -84,7 +84,7 @@ newstrata <- updateStrata(swissstrata, solution)
 data(swissframe)
 framenew <- updateFrame(frame=swissframe,newstrata=newstrata)
 # selection of sample
-sample <- selectSample(frame = framenew, outstrata = solution$aggr_strata, writeFile=FALSE, verbatim=TRUE)
+sample <- selectSample(frame=framenew,outstrata=solution$aggr_strata)
 head(sample)
 }
 }

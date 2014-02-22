@@ -19,7 +19,7 @@ optimizeStrata <- function(errors, strata, cens = NULL, strcens = FALSE,
     erro <- split(errors, list(errors$DOMAINVALUE))
     stcamp <- split(strata, list(strata$DOM1))
     if (strcens == TRUE) 
-        colnames(strcens) <- toupper(colnames(strcens))
+        colnames(cens) <- toupper(colnames(cens))
     if (strcens == TRUE) 
         stcens <- split(cens, list(cens$DOM1))
     ndom <- length(levels(as.factor(strata$DOM1)))

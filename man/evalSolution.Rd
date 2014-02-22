@@ -54,8 +54,6 @@ Giulio Barcaroli
 library(SamplingStrata)
 data(swisserrors)
 data(swissstrata)
-# run  optimization
-dominio <- 3
 solution <- optimizeStrata (
 	errors = swisserrors,
 	strata = swissstrata,
@@ -66,7 +64,7 @@ solution <- optimizeStrata (
 	initialStrata = nrow(swissstrata)/3,
 	addStrataFactor = 0.01,
 	minnumstr = 2,
-	iter = 200,
+	iter = 50,
 	pops = 20,
 	mut_chance = 0.05,
 	elitism_rate = 0.2,
@@ -79,7 +77,6 @@ solution <- optimizeStrata (
 newstrata <- updateStrata(swissstrata, solution, writeFiles = TRUE)
 # update sampling frame with new strata labels
 data(swissframe)
-#swissframe <- swissframe[swissframe$domainvalue == dominio,]
 framenew <- updateFrame(frame=swissframe,newstrata=newstrata,writeFile=TRUE)
 samp <- selectSample(framenew,solution$aggr_strata,writeFiles=TRUE)
 # evaluate the current solution
@@ -98,10 +95,15 @@ for (j in 1:k) {
         if (i + 4 * (j - 1) <= numY) {
             stmt <- paste("screen(", i, ")", sep = "")
             eval(parse(text = stmt))
-			stmt <- paste("boxplot(diff",i,"~dom,data=diff,ylab='Differences',xlab='Domain',col = 'orange')",sep="")
+			stmt <- paste("boxplot(diff",i,"~dom,
+							data=diff,
+							ylab='Differences',
+							xlab='Domain',
+							sep="")
 			eval(parse(text = stmt))
-            stmt <- paste("mtext(expression(Y", i , "), side=3, adj=0, cex=1.0, line=1)", 
-                  sep = "")
+            stmt <- paste("mtext(expression(Y", i , "),
+							side=3,adj=0,cex=1.0,line=1)", 
+							sep = "")
             eval(parse(text = stmt))
         }
     }

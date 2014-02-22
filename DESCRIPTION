@@ -2,8 +2,8 @@ Package: SamplingStrata
 Type: Package
 Title: Optimal stratification of sampling frames for multipurpose
         sampling surveys
-Version: 1.0-1
-Date: 2013-01-14
+Version: 1.0-2
+Date: 2014-02-22
 Author: Giulio Barcaroli, Daniela Pagliuca and Egon Willighagen
 Maintainer: Giulio Barcaroli <barcarol@istat.it>
 Description: In the field of stratified sampling design, this package
@@ -20,12 +20,13 @@ Description: In the field of stratified sampling design, this package
         Functions in the package allows to: (a) analyse the obtained
         results of the optimisation step; (b) assign the new strata
         labels to the sampling frame; (c) select a sample from the new
-        frame accordingly to the best allocation.  Functions for the
-        execution of the genetic algorithm are a modified version of
-        the functions in the 'genalg' package.
+        frame accordingly to the best allocation. 
+        Functions for the execution of the genetic algorithm are a modified 
+        version of the functions in the 'genalg' package.  
 License: GPL (>= 2)
 LazyLoad: yes
-Depends: R (>= 2.10.0)
-Packaged: 2013-01-16 17:43:57 UTC; barcarol
+Depends: R (>= 2.15.0)
+Packaged: 2014-03-03 22:01:05 UTC; utente
+NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2013-01-16 20:54:08
+Date/Publication: 2014-03-04 01:20:42
