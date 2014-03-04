@@ -130,7 +130,7 @@ solution <- optimizeStrata (
     suggestions = NULL,
 	writeFile = FALSE)
 sum(ceiling(solution$aggr_strata$SOLUZ))
-head(outstrata)
+head(solution$aggr_strata)
 }
 #
 # The following example is realistic, but is time consuming
