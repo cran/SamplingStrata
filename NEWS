@@ -1,3 +1,12 @@
+Changes in Version 1.0-3
+
+  o Modified the output to the console or to the file of results: instead of all
+  the solutions, only the optimal value for each generation is visualised
+  o Now the visualisation of the trend in the optimal and mean values is optional:
+  the plot can be avoided by setting showPlot = FALSE when calling optimizeStrata.
+  It can be advisable when the number of iterations is very high
+  
+
 Changes in Version 1.0-2
 
   o Bug fix for old releases.

@@ -8,7 +8,7 @@
 strataGenalg <- function(errors, strata, cens, strcens, 
     dominio, initialStrata, minnumstr, iter, pops, mut_chance, 
     elitism_rate, addStrataFactor, highvalue, suggestions, realAllocation,
-	writeFiles) {
+	writeFiles, showPlot) {
     # --------------------------------------------------------------------------
     colnames(strata) <- toupper(colnames(strata))
     colnames(errors) <- toupper(colnames(errors))
@@ -96,8 +96,8 @@ strataGenalg <- function(errors, strata, cens, strcens,
         ntot <- sum(soluz)
         # if (dimens > (initialStrata-1)) ntot <- highvalue
         # cat('\nSolution: ',indices)
-        cat("\nNumber of strata:", nrow(strcor), " Sample cost:", 
-            ntot)
+#        cat("\nNumber of strata:", nrow(strcor), " Sample cost:", 
+#            ntot)
         # cat('\n',floor(indices))
         return(ntot)
         # print(paste('Dimensione: ',round(ntot),' Numero strata:
@@ -107,10 +107,12 @@ strataGenalg <- function(errors, strata, cens, strcens,
     # --------------------------------------------------------------------------
     # Monitoring of processing
     # --------------------------------------------------------------------------
+
     monitor <- function(obj) {
         # plot the population
         minEval <- min(obj$evaluations)
-        plot(obj, type = "trend")
+		cat("\nSample cost:",minEval)
+        if (showPlot == TRUE) plot(obj, type = "trend")
         # plot(dimens,round(rbga.results$best[iter]),type='b',main
         # = '',col='blue') title(main = list('Best sample sizes vs
         # number of strata', cex=1.5, col='red', font=2))

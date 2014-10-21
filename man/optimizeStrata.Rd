@@ -25,7 +25,8 @@ This function runs a set of other functions to optimise the stratification of a 
 	highvalue = 1e+08, 
 	suggestions = NULL,
 	realAllocation = FALSE,
-	writeFiles = FALSE
+	writeFiles = FALSE,
+	showPlot = TRUE
 	)
 }
 \arguments{
@@ -95,6 +96,10 @@ This function runs a set of other functions to optimise the stratification of a 
   directory.
   Default is "FALSE".
 }
+  \item{showPlot}{
+  Indicates if the plot showing the trend in the value of the objective function has to be shown or not.
+  Default is "TRUE".
+}
 }
 
 \value{
@@ -128,7 +133,8 @@ solution <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = FALSE)
+	writeFile = FALSE,
+	showPlot = TRUE)
 sum(ceiling(solution$aggr_strata$SOLUZ))
 head(solution$aggr_strata)
 }
@@ -154,7 +160,8 @@ solution <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = FALSE)
+	writeFile = FALSE,
+	showPlot = TRUE)
 sum(ceiling(solution$aggr_strata$SOLUZ))
 head(solution$aggr_strata)
 }

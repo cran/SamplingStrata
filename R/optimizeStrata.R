@@ -9,7 +9,7 @@ optimizeStrata <- function(errors, strata, cens = NULL, strcens = FALSE,
     alldomains = TRUE, dom = NULL, initialStrata = nrow(strata), addStrataFactor = 0.01, 
     minnumstr = 2, iter = 20, pops = 20, mut_chance = 0.05, elitism_rate = 0.2, 
     highvalue = 1e+08, suggestions = NULL, realAllocation = FALSE, 
-    writeFiles = FALSE) {
+    writeFiles = FALSE, showPlot = TRUE) {
     # --------------------------------------------------------------------------
     # Parameters
     # --------------------------------------------------------------------------
@@ -35,7 +35,7 @@ optimizeStrata <- function(errors, strata, cens = NULL, strcens = FALSE,
                 cens = cens, strcens, dominio = i, initialStrata, 
                 minnumstr, iter, pops, mut_chance, elitism_rate, 
                 addStrataFactor, highvalue, suggestions, realAllocation, 
-				writeFiles)
+				writeFiles, showPlot)
 			v <- c(v,solut[[1]])
 			outstrata <- rbind(outstrata, solut[[2]])
         }
@@ -52,7 +52,7 @@ optimizeStrata <- function(errors, strata, cens = NULL, strcens = FALSE,
             cens = cens, strcens, dominio = i, initialStrata, 
             minnumstr, iter, pops, mut_chance, elitism_rate, 
             addStrataFactor, highvalue, suggestions, realAllocation,
-			writeFiles)
+			writeFiles, showPlot)
 		v <- solut[[1]]
 		outstrata <- solut[[2]]
     }

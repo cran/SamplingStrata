@@ -62,7 +62,8 @@ variant. In general, the number of possible alternative stratifications for a gi
 the number of variables and on the number of their values, and in these cases it is not possible to enumerate them in order to assess 
 the best one. A very convenient solution to this, is the adoption of the evolutionary approach, consisting in applying a 
 genetic algorithm that may converge towards a near-optimal solution after a finite number of iterations. 
-The methodology is fully described in \cite{ballin:2013}.
+The methodology is fully described in \cite{ballin:2013}, and a complete illustration of the package, together with 
+a comparison with the {\tt stratification} package, is in \cite{barcarol:2013}.
 The implementation of the genetic algorithm is based on a modification of the functions in the {\tt genalg} package (see \cite{willighagen:2005}).
 
 \section [Procedural steps]{Procedural steps}
