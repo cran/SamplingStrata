@@ -80,7 +80,7 @@ data(swissframe)
 framenew <- updateFrame(frame=swissframe,newstrata=newstrata,writeFile=TRUE)
 samp <- selectSample(framenew,solution$aggr_strata,writeFiles=TRUE)
 # evaluate the current solution
-results <- evalSolution(framenew, solution$aggr_strata, 500, writeFiles = TRUE)
+results <- evalSolution(framenew, solution$aggr_strata, 100, writeFiles = TRUE)
 boxplot(val ~ cv, data = results$coeff_var,
         col = "orange",
         main = "Distribution of CV's in the domains",
@@ -95,21 +95,16 @@ for (j in 1:k) {
         if (i + 4 * (j - 1) <= numY) {
             stmt <- paste("screen(", i, ")", sep = "")
             eval(parse(text = stmt))
-			stmt <- paste("boxplot(diff",i,"~dom,
-							data=diff,
-							ylab='Differences',
-							xlab='Domain',
-							sep="")
+    	stmt <- paste("boxplot(diff",i,"~dom,
+                    data=diff,ylab='Differences',
+                    xlab='Domain',col = 'orange')",sep="")
 			eval(parse(text = stmt))
-            stmt <- paste("mtext(expression(Y", i , "),
-							side=3,adj=0,cex=1.0,line=1)", 
-							sep = "")
+            stmt <- paste("mtext(expression(Y", i , "), side=3, adj=0, cex=1.0, line=1)", 
+                  sep = "")
             eval(parse(text = stmt))
         }
     }
 }
 }
 }
-
 \keyword{ survey }
-

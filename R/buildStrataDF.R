@@ -119,6 +119,7 @@ buildStrataDF <- function(dataset) {
         stratatot <- rbind(stratatot, strata)
     }  # end domain cycle
     colnames(stratatot) <- toupper(colnames(stratatot))
+    stratatot$DOM1 <- as.factor(stratatot$DOM1)
     write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t", 
         dec = ".", row.names = FALSE)
     stratatot <- read.delim("strata.txt")

@@ -111,7 +111,7 @@ strataGenalg <- function(errors, strata, cens, strcens,
     monitor <- function(obj) {
         # plot the population
         minEval <- min(obj$evaluations)
-		cat("\nSample cost:",minEval)
+#		cat("\nSample cost:",minEval)
         if (showPlot == TRUE) plot(obj, type = "trend")
         # plot(dimens,round(rbga.results$best[iter]),type='b',main
         # = '',col='blue') title(main = list('Best sample sizes vs
