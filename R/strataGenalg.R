@@ -3,7 +3,7 @@
 # allocation with Genetic Algorithm together with strata
 # determination 
 # Author: Giulio Barcaroli
-# Date: 4 January 2012
+# Date: 25 September 2015
 # ----------------------------------------------------
 strataGenalg <- function(errors, strata, cens, strcens, 
     dominio, initialStrata, minnumstr, iter, pops, mut_chance, 
@@ -103,6 +103,7 @@ strataGenalg <- function(errors, strata, cens, strcens,
         # print(paste('Dimensione: ',round(ntot),' Numero strata:
         # ',dimens))
     }
+	evaluateMem <- memoise(evaluate)
     #
     # --------------------------------------------------------------------------
     # Monitoring of processing
@@ -132,7 +133,7 @@ strataGenalg <- function(errors, strata, cens, strcens,
 	    rbga.results <- rbga(stringMin, stringMax, suggestions = suggestions, 
         monitorFunc = monitor, iters = iter, popSize = pops, 
         mutationChance = mut_chance, elitism_rate, addStrataFactor, 
-        evalFunc = evaluate, verbose = verb, showSettings = show, 
+        evalFunc = evaluateMem, verbose = verb, showSettings = show, 
         )
     #
     # --------------------------------------------------------------------------
@@ -168,8 +169,7 @@ strataGenalg <- function(errors, strata, cens, strcens,
 	}
     censiti <- 0
     strcor <- aggrStrata(strata, nvar, v, censiti, dominio)
-    if (strcens == TRUE) 
-        strcor <- rbind(strcor, cens)
+ #   if (strcens == TRUE) strcor <- rbind(strcor, cens)
     soluz <- bethel(strcor, errors, minnumstr, printa = FALSE, 
         realAllocation = realAllocation)
 	risulta <- cbind(strcor, soluz)

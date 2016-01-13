@@ -2,7 +2,7 @@
 # Function to produce the "strata" dataframe
 # starting from the available sampling frame
 # Author: Giulio Barcaroli
-# Date: 4 January 2012
+# Date: 23 September 2015
 # ----------------------------------------------------
 buildStrataDF <- function(dataset) {
     # stdev1 is for sampling data
@@ -31,7 +31,8 @@ buildStrataDF <- function(dataset) {
     stratatot <- NULL
     # begin domains cycle
     for (d in (1:numdom)) {
-        domain <- dataset[dataset$DOMAINVALUE == d, ]
+		dom <- levels(as.factor(dataset$DOMAINVALUE))[d]
+		domain <- dataset[dataset$DOMAINVALUE == dom, ]
         listX <- NULL
         namesX <- NULL
         for (i in 1:nvarX) {
@@ -102,7 +103,7 @@ buildStrataDF <- function(dataset) {
         STRATO <- domain$STRATO
         COST <- rep(1, length(levels(domain$STRATO)))
         CENS <- rep(0, length(levels(domain$STRATO)))
-        DOM1 <- rep(as.character(d), length(levels(domain$STRATO)))
+        DOM1 <- rep(as.character(dom), length(levels(domain$STRATO)))
         stmt <- paste("strata <- as.data.frame(cbind(STRATO=levels(STRATO),N,", 
             listM, listS, "COST,CENS,DOM1))")
         eval(parse(text = stmt))

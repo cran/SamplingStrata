@@ -2,9 +2,10 @@ Package: SamplingStrata
 Type: Package
 Title: Optimal Stratification of Sampling Frames for Multipurpose
         Sampling Surveys
-Version: 1.0-4
-Date: 2015-08-24
-Author: Giulio Barcaroli, Daniela Pagliuca and Egon Willighagen
+Version: 1.1
+Date: 2016-01-12
+Author: Giulio Barcaroli, Daniela Pagliuca, Egon Willighagen,
+		Diego Zardetto
 Maintainer: Giulio Barcaroli <barcarol@istat.it>
 Description: In the field of stratified sampling design, this package
         offers an approach for the determination of the best
@@ -25,8 +26,8 @@ Description: In the field of stratified sampling design, this package
         version of the functions in the 'genalg' package.  
 License: GPL (>= 2)
 LazyLoad: yes
-Depends: R (>= 2.15.0)
-Packaged: 2015-08-25 11:55:56 UTC; UTENTE
+Depends: R (>= 2.15.0), memoise
 NeedsCompilation: no
+Packaged: 2016-01-12 22:50:51 UTC; UTENTE
 Repository: CRAN
-Date/Publication: 2015-08-25 16:31:27
+Date/Publication: 2016-01-13 13:54:05

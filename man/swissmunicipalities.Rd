@@ -36,8 +36,8 @@ in 2003.
 \source{Swiss Federal Statistical Office.
 }
 \examples{
-data(swissmunicipalities)
-hist(swissmunicipalities$POPTOT)
+# data(swissmunicipalities)
+# hist(swissmunicipalities$POPTOT)
 }
 \keyword{datasets}
 

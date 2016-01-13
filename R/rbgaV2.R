@@ -62,12 +62,14 @@ rbga <- function(stringMin=c(), stringMax=c(),
             population = matrix(nrow=popSize, ncol=vars);
             suggestionCount = dim(suggestions)[1]
             for (i in 1:suggestionCount) {
-                population[i,] = suggestions[i,]
+#                population[i,] = suggestions[i,]
+				population[i,] = recode(suggestions[i,])
             }
 #            if (verbose) cat("Filling others with random values in the given domains...\n");
             for (var in 1:vars) {
 #                population[(suggestionCount+1):popSize,var] = stringMin[var] +
 #                                   runif(popSize-suggestionCount)*(stringMax[var]-stringMin[var]);
+#				population[(suggestionCount+1):popSize,var]=sample.int(stringMax[var],size=(popSize-suggestionCount),replace=TRUE,prob=NULL)
 				population[(suggestionCount+1):popSize,var]=sample.int(stringMax[var],size=(popSize-suggestionCount),replace=TRUE,prob=NULL)
             }
         } else {
@@ -82,7 +84,11 @@ rbga <- function(stringMin=c(), stringMax=c(),
                 population[,var]=sample.int(stringMax[var],size=popSize,replace=TRUE,prob=NULL)
             }
         }
-        
+	# New ---------------------------------------
+		for (i in (1:popSize)) {
+			population[i,] <- recode(population[i,])
+		}
+	# -------------------------------------------        
         # do iterations
         bestEvals = rep(NA, iters);
         meanEvals = rep(NA, iters);
@@ -228,7 +234,12 @@ rbga <- function(stringMin=c(), stringMax=c(),
             }
         }
     }
-
+	# New ---------------------------------------
+	for (i in (1:popSize)) {
+		population[i,] <- recode(population[i,])
+	}
+	# -------------------------------------------
+	
     # report on GA settings
     result = list(type="floats chromosome", 
                   stringMin=stringMin, stringMax=stringMax,

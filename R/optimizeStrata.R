@@ -4,15 +4,21 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
     elitism_rate = 0.2, highvalue = 1e+08, suggestions = NULL, 
     realAllocation = FALSE, writeFiles = FALSE, showPlot = TRUE) 
 {
-    colnames(errors) <- toupper(colnames(errors))
+	colnames(errors) <- toupper(colnames(errors))
     colnames(strata) <- toupper(colnames(strata))
     errors$DOMAINVALUE <- as.factor(errors$DOMAINVALUE)
     erro <- split(errors, list(errors$DOMAINVALUE))
     stcamp <- split(strata, list(strata$DOM1))
     if (strcens == TRUE) {
-        colnames(cens) <- toupper(colnames(cens))
-        stcens <- split(cens, list(cens$DOM1))
+		colnames(cens) <- toupper(colnames(cens))
+#       stcens <- split(cens, list(cens$DOM1))
+		k <- length(levels(as.factor(strata$DOM1)))
+		stcens <- NULL
+		for (i in (1:k)) {
+			stcens[[i]] <- cens[cens$DOM1 == i,]
+ 		}
     }
+
     ndom <- length(levels(as.factor(strata$DOM1)))
     if (alldomains == TRUE) {
         vettsol <- NULL
@@ -22,7 +28,7 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
             cat("\n Number of strata : ", nrow(stcamp[[i]]) )
             erro[[i]] <- erro[[i]][, -ncol(errors)]
             cens <- NULL
-            flagcens = strcens
+            flagcens <- strcens
             if (strcens == TRUE) {
                 if (nrow(stcens[[i]]) > 0) {
                   cens <- stcens[[i]]
@@ -39,7 +45,7 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
                 cens <- NULL
                 flagcens = FALSE
             }
-            if (nrow(stcamp[[i]]) > 0 & flagcens == FALSE) {
+            if (nrow(stcamp[[i]]) > 0) {
                 solut <- strataGenalg(errors = erro[[i]], 
                   strata = stcamp[[i]], 
                   cens = cens, 
@@ -69,15 +75,15 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
 				colnames(solut[[2]]) <- toupper(colnames(solut[[2]]))
                 outstrata <- rbind(outstrata, solut[[2]])
             }
-            if (nrow(stcamp[[i]]) == 0 & flagcens == TRUE) {
-                sol <- NULL
-                t <- c(rep(1, nrow(stcens[[i]])))
-                sol <- aggrStrata(strata = stcens[[i]], nvar = (ncol(errors) - 
-                  2), vett = t, censiti = 1, dominio = i)
-                sol$soluz <- sol$N
-                vettsol <- c(vettsol, t)
-                outstrata <- rbind(outstrata, sol)
-            }
+ #           if (nrow(stcamp[[i]]) == 0 & flagcens == TRUE) {
+ #               sol <- NULL
+ #               t <- c(rep(1, nrow(stcens[[i]])))
+ #               sol <- aggrStrata(strata = stcens[[i]], nvar = (ncol(errors) - 
+ #                 2), vett = t, censiti = 1, dominio = i)
+ #               sol$soluz <- sol$N
+ #               vettsol <- c(vettsol, t)
+ #               outstrata <- rbind(outstrata, sol)
+ #           }
         }
     }
     if (alldomains == FALSE) {
@@ -85,13 +91,32 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
             stop("\nInvalid value of the indicated domain\n")
         i <- dom
         erro[[i]] <- erro[[i]][, -ncol(errors)]
-        if (strcens == TRUE) 
-            cens <- stcens[[i]]
-        solut <- strataGenalg(errors = erro[[i]], strata = stcamp[[i]], 
-            cens = cens, strcens, dominio = i, initialStrata, 
-            minnumstr, iter, pops, mut_chance, elitism_rate, 
-            addStrataFactor, highvalue, suggestions, realAllocation, 
-            writeFiles, showPlot)
+		flagcens <- strcens
+		if (strcens == TRUE) {
+			flagcens <- TRUE
+			colnames(cens) <- toupper(colnames(cens))
+			censi <- cens[cens$DOM1 == i,]
+			if (nrow(censi) == 0) {
+				flagcens <- FALSE
+				censi <- NULL
+			}
+		}
+        solut <- strataGenalg(errors = erro[[i]], 
+								strata = stcamp[[i]], 
+								cens = censi, 
+								strcens = flagcens, 
+								dominio = i, 
+								initialStrata, minnumstr, 
+								iter, 
+								pops, 
+								mut_chance, 
+								elitism_rate, 
+								addStrataFactor, 
+								highvalue, 
+								suggestions, 
+								realAllocation, 
+								writeFiles, 
+								showPlot)
         vettsol <- solut[[1]]
         outstrata <- solut[[2]]
     }

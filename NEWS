@@ -1,3 +1,17 @@
+Changes in Version 1.1
+
+  o Function 'memoise' from the same package (now required) is applied before 
+  each evaluation in order to save processing time. This may largely increase
+  the efficiency of the algorithm
+  
+  o A 'recode' function is applied on every generated solution in order
+  to recode a genotype of n genes with k<=n  distinct alleles 1, 2, ..., k 
+  in such a way that the distinct alleles of the recoded genotype appear 
+  in the natural order 1, 2, ..., k.  This avoids to consider as distinct two
+  solutions that are equivalent but make use of a different coding
+
+
+
 Changes in Version 1.0-4
 
   o Bug fix for old releases

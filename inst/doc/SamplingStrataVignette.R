@@ -12,6 +12,7 @@ foo <- packageDescription('SamplingStrata')
 ### code chunk number 2: frame1
 ###################################################
 library(SamplingStrata)
+require(memoise)
 data(swissmunicipalities)
 
 
@@ -191,5 +192,97 @@ evalSolution(framenew, solution$aggr_strata, nsampl=50, writeFiles=TRUE)
 ###################################################
 expected_cv <- read.csv("expected_cv.csv")
 expected_cv
+
+
+###################################################
+### code chunk number 27: frame24
+###################################################
+data(swisserrors)
+data(swissstrata)
+data(swissframe)
+#----Selection of units to be censused from the frame
+framecens <- swissframe[ (swissframe$domainvalue == 1 |
+                          swissframe$domainvalue == 4) & 
+                         (swissframe$X2 == 1 &
+                          swissframe$X3 == 1 &
+                          swissframe$X4 == 1 &
+                          swissframe$X5 == 1 &
+                          swissframe$X6 == 1)  , ]
+#----Selection of units to be sampled from the frame
+# (complement to the previous)
+framesamp <- swissframe[!((swissframe$domainvalue == 1 |
+                           swissframe$domainvalue == 4) & 
+                          (swissframe$X2 == 1 &
+                           swissframe$X3 == 1 &
+                           swissframe$X4 == 1 &
+                           swissframe$X5 == 1 &
+                           swissframe$X6 == 1)) , ]
+
+
+###################################################
+### code chunk number 28: frame24
+###################################################
+# Build strata to be censused and sampled
+cens <- buildStrataDF(framecens)
+sum(cens$N)
+strata <- buildStrataDF(framesamp)
+sum(strata$N)
+
+
+###################################################
+### code chunk number 29: frame25
+###################################################
+solution <- optimizeStrata(
+	errors = swisserrors, 
+	strata = strata, 
+	cens = cens, 
+	strcens = TRUE, 
+	initialStrata = nrow(strata), 
+	addStrataFactor = 0.00, 
+	minnumstr = 2, 
+	iter = 40, 
+	pops = 10, 
+	mut_chance = 0.05, 
+	elitism_rate = 0.2,
+	highvalue = 1e+08, 
+	suggestions = NULL,
+	realAllocation = TRUE,
+	writeFiles = TRUE)
+
+
+###################################################
+### code chunk number 30: frame25
+###################################################
+newstrata <- updateStrata(strata, solution)
+# updating sampling frame with new strata labels
+framenew <- updateFrame(frame=framesamp,newstrata=newstrata)
+# selection of sample from sampling strata
+sample <- selectSample(frame=framenew,outstrata=solution$aggr_strata)
+
+
+###################################################
+### code chunk number 31: frame26
+###################################################
+# addition of necessary variables to 
+colnames(framesamp) <- toupper(colnames(framesamp))
+colnames(framecens) <- toupper(colnames(framecens))
+framecens$WEIGHTS <- rep(1,nrow(framecens))
+framecens$FPC <- rep(1,nrow(framecens))
+framecens$LABEL <- rep("999999",nrow(framecens))
+framecens$STRATUM <- rep("999999",nrow(framecens))
+framecens$STRATO <- rep("999999",nrow(framecens))
+
+
+###################################################
+### code chunk number 32: frame27
+###################################################
+survey <- rbind(sample,framecens)
+
+
+###################################################
+### code chunk number 33: frame28
+###################################################
+survey$cens <- ifelse(survey$LABEL == "999999",1,0)
+table(survey$cens)
 
 
