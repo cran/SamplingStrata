@@ -2,8 +2,15 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
     dom = NULL, initialStrata = nrow(strata), addStrataFactor = 0.01, 
     minnumstr = 2, iter = 20, pops = 20, mut_chance = 0.05, 
     elitism_rate = 0.2, highvalue = 1e+08, suggestions = NULL, 
-    realAllocation = FALSE, writeFiles = FALSE, showPlot = TRUE) 
+    realAllocation = TRUE, writeFiles = FALSE, showPlot = TRUE) 
 {
+  if (writeFiles == TRUE) {
+    dire <- getwd()
+    direnew <- paste(dire,"/output",sep="")
+    if(!dir.exists(direnew)) dir.create(direnew)
+    setwd(direnew)
+  }
+  nstrata = initialStrata
 	colnames(errors) <- toupper(colnames(errors))
     colnames(strata) <- toupper(colnames(strata))
     errors$DOMAINVALUE <- as.factor(errors$DOMAINVALUE)
@@ -21,6 +28,9 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
 
     ndom <- length(levels(as.factor(strata$DOM1)))
     if (alldomains == TRUE) {
+      if (ndom > length(nstrata)) stop("'initialStrata' vector lenght (=",length(nstrata),") 
+is not compatible with number of domains (=",ndom,")
+Set initialStrata with a number of elements equal to the number of domains")
         vettsol <- NULL
         outstrata <- NULL
         for (i in 1:ndom) {
@@ -51,7 +61,7 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
                   cens = cens, 
                   strcens = flagcens, 
                   dominio = i, 
-                  initialStrata = nrow(stcamp[[i]]), 
+                  initialStrata = nstrata[i], 
                   minnumstr, 
                   iter, 
                   pops, 
@@ -106,7 +116,8 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
 								cens = censi, 
 								strcens = flagcens, 
 								dominio = i, 
-								initialStrata, minnumstr, 
+								initialStrata = nstrata, 
+								minnumstr, 
 								iter, 
 								pops, 
 								mut_chance, 
@@ -121,7 +132,10 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
         outstrata <- solut[[2]]
     }
     colnames(outstrata) <- toupper(colnames(outstrata))
-    dimens <- sum(outstrata$SOLUZ)
+    # new statement ---------------------------
+    # outstrata$SOLUZ <- ceiling(outstrata$SOLUZ)
+    # -----------------------------------------
+    dimens <- sum(ceiling(outstrata$SOLUZ))
     cat("\n *** Sample size : ", dimens)
     cat("\n *** Number of strata : ", nrow(outstrata))
     cat("\n---------------------------")
@@ -131,5 +145,8 @@ optimizeStrata <- function (errors, strata, cens = NULL, strcens = FALSE, alldom
         cat("\n...written output to outstrata.txt")
     }
     solution <- list(indices = vettsol, aggr_strata = outstrata)
+    if (writeFiles == TRUE) {
+      setwd(dire)
+    }
     return(solution)
 }

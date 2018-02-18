@@ -65,6 +65,8 @@ data(strata)
 data(errors)
 n <- bethel(strata, errors, printa=TRUE)
 sum(n)
+attributes(n)$confr
+attributes(n)$outcv
 }
 \keyword{ survey }
 

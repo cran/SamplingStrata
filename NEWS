@@ -1,3 +1,28 @@
+Changes in Version 1.2
+
+  o The crossover function in the genetic algorithm has been modified by considering
+  the "grouping" version of this algorithm: instead of mixing chromosomes in an 
+  indifferentiate way, groups of them in one parent (representing already aggregated
+  strata) are attributed to the other parent when generating a child, preserving their
+  composition. Moreover, parents are selected with a probability proportional to their
+  fitness (in previous version selection was completely at random). In many cases this
+  can greatly speed the convergence to an optimal solution.
+
+  o A new function 'adjustSize' has been added. It allows to adjust the sample size and 
+  related allocation in strata on the basis of an externally indicated overall sample size. 
+  The adjustment of the sample size is perfomed by increasing or decreasing it proportionally 
+  in each optimized stratum.
+  
+  o A new function 'buildFrameDF' has been added. It allows to create a 'sampling frame' 
+  dataframe by indicating the dataset in which the information on all the units are 
+  contained, the identifier, the X variables, the Y variable and the variable that
+  indicates the domains of interest.
+  
+  o In function 'optimizeStrata' now the 'initialStrata' parameter is a vector, whose
+  length is equal to the number of different domains.
+  
+  o All outputs are written to an .\output subdirectory. 
+  
 Changes in Version 1.1
 
   o Function 'memoise' from the same package (now required) is applied before 

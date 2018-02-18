@@ -17,23 +17,18 @@ data(swissmunicipalities)
 
 
 ###################################################
-### code chunk number 3: frame2
+### code chunk number 3: frame1
 ###################################################
-swissframe <- NULL
-swissframe$id <- swissmunicipalities$Nom
+id = "Nom"
+X = c("POPTOT","Surfacesbois","Surfacescult","Alp","Airbat","Airind")
+Y = c("Pop020","Pop2040","Pop4065","Pop65P")
+domainvalue = "REG"
+swissframe <- buildFrameDF(swissmunicipalities,id,X,Y,domainvalue)
+str(swissframe)
 
 
 ###################################################
-### code chunk number 4: frame3
-###################################################
-swissframe$Y1 <- swissmunicipalities$Pop020
-swissframe$Y2 <- swissmunicipalities$Pop2040
-swissframe$Y3 <- swissmunicipalities$Pop4065
-swissframe$Y4 <- swissmunicipalities$Pop65P
-
-
-###################################################
-### code chunk number 5: frame4
+### code chunk number 4: frame4
 ###################################################
 library(SamplingStrata)
 swissframe$X1 <- var.bin(swissmunicipalities$POPTOT, bins=18)
@@ -45,26 +40,13 @@ swissframe$X6 <- var.bin(swissmunicipalities$Airind, bins=3)
 
 
 ###################################################
-### code chunk number 6: frame5
-###################################################
-swissframe$domainvalue <- swissmunicipalities$REG
-swissframe <- data.frame(swissframe)
-
-
-###################################################
-### code chunk number 7: frame6
-###################################################
-head(swissframe)
-
-
-###################################################
-### code chunk number 8: frame7
+### code chunk number 5: frame7
 ###################################################
 write.table (swissframe, "swissframe.txt", row.names=FALSE,col.names=TRUE, sep="\t", quote=FALSE)
 
 
 ###################################################
-### code chunk number 9: frame8
+### code chunk number 6: frame8
 ###################################################
 library(SamplingStrata)
 data(swissframe)
@@ -72,77 +54,77 @@ head(swissframe)
 
 
 ###################################################
-### code chunk number 10: frame9
+### code chunk number 7: frame9
 ###################################################
 data(strata)
 head(strata)
 
 
 ###################################################
-### code chunk number 11: frame11
+### code chunk number 8: frame11
 ###################################################
 swissstrata <- buildStrataDF(swissframe)
 
 
 ###################################################
-### code chunk number 12: frame12
+### code chunk number 9: frame12
 ###################################################
 head(swissstrata)
 
 
 ###################################################
-### code chunk number 13: frame13
+### code chunk number 10: frame13
 ###################################################
 data(swissstrata)
 
 
 ###################################################
-### code chunk number 14: frame14 (eval = FALSE)
+### code chunk number 11: frame14 (eval = FALSE)
 ###################################################
 ## samp <- read.delim("samplePrev.txt")
 
 
 ###################################################
-### code chunk number 15: frame15 (eval = FALSE)
+### code chunk number 12: frame15 (eval = FALSE)
 ###################################################
 ## strata <- buildStrataDF(samp)
 
 
 ###################################################
-### code chunk number 16: frame16
+### code chunk number 13: frame16
 ###################################################
 data(swisserrors)
 swisserrors
 
 
 ###################################################
-### code chunk number 17: frame17
+### code chunk number 14: frame17
 ###################################################
 checkInput(swisserrors,swissstrata,swissframe)
 
 
 ###################################################
-### code chunk number 18: frame18
+### code chunk number 15: frame18
 ###################################################
 cv <- swisserrors[1,]
 cv
 
 
 ###################################################
-### code chunk number 19: frame19
+### code chunk number 16: frame19
 ###################################################
 sum(bethel(swissstrata,cv))
 
 
 ###################################################
-### code chunk number 20: frame20
+### code chunk number 17: frame20
 ###################################################
 solution <- optimizeStrata(
 	errors = swisserrors, 
 	strata = swissstrata, 
 	cens = NULL, 
 	strcens = FALSE, 
-	initialStrata = nrow(strata), 
+	initialStrata = as.numeric(table(swissstrata$DOM1)), 
 	addStrataFactor = 0.00, 
 	minnumstr = 2, 
 	iter = 40, 
@@ -157,45 +139,59 @@ sum(ceiling(solution$aggr_strata$SOLUZ))
 
 
 ###################################################
-### code chunk number 21: frame21
+### code chunk number 18: frame29
+###################################################
+adjustedStrata <- adjustSize(size=200,strata=solution$aggr_strata,cens=NULL)
+sum(adjustedStrata$SOLUZ)
+
+
+###################################################
+### code chunk number 19: frame30
+###################################################
+adjustedStrata <- adjustSize(size=400,strata=solution$aggr_strata,cens=NULL)
+sum(adjustedStrata$SOLUZ)
+
+
+###################################################
+### code chunk number 20: frame21
 ###################################################
 newstrata <- updateStrata(swissstrata, solution, writeFiles = TRUE)
 
 
 ###################################################
-### code chunk number 22: frame13
+### code chunk number 21: frame13
 ###################################################
 strata_aggregation <- read.delim("strata_aggregation.txt")
 head(strata_aggregation)
 
 
 ###################################################
-### code chunk number 23: frame22
+### code chunk number 22: frame22
 ###################################################
 framenew <- updateFrame(swissframe, newstrata, writeFiles=TRUE)
 
 
 ###################################################
-### code chunk number 24: frame23
+### code chunk number 23: frame23
 ###################################################
 sample <- selectSample(framenew, solution$aggr_strata, writeFiles=TRUE)
 
 
 ###################################################
-### code chunk number 25: frame24
+### code chunk number 24: frame24
 ###################################################
 evalSolution(framenew, solution$aggr_strata, nsampl=50, writeFiles=TRUE) 
 
 
 ###################################################
-### code chunk number 26: frame25
+### code chunk number 25: frame25
 ###################################################
 expected_cv <- read.csv("expected_cv.csv")
 expected_cv
 
 
 ###################################################
-### code chunk number 27: frame24
+### code chunk number 26: frame24
 ###################################################
 data(swisserrors)
 data(swissstrata)
@@ -220,7 +216,7 @@ framesamp <- swissframe[!((swissframe$domainvalue == 1 |
 
 
 ###################################################
-### code chunk number 28: frame24
+### code chunk number 27: frame24
 ###################################################
 # Build strata to be censused and sampled
 cens <- buildStrataDF(framecens)
@@ -230,14 +226,16 @@ sum(strata$N)
 
 
 ###################################################
-### code chunk number 29: frame25
+### code chunk number 28: frame25
 ###################################################
 solution <- optimizeStrata(
 	errors = swisserrors, 
 	strata = strata, 
 	cens = cens, 
 	strcens = TRUE, 
-	initialStrata = nrow(strata), 
+	alldomains = TRUE,
+	dom = NULL,
+	initialStrata = as.numeric(table(strata$DOM1)), 
 	addStrataFactor = 0.00, 
 	minnumstr = 2, 
 	iter = 40, 
@@ -251,7 +249,7 @@ solution <- optimizeStrata(
 
 
 ###################################################
-### code chunk number 30: frame25
+### code chunk number 29: frame25
 ###################################################
 newstrata <- updateStrata(strata, solution)
 # updating sampling frame with new strata labels
@@ -261,7 +259,7 @@ sample <- selectSample(frame=framenew,outstrata=solution$aggr_strata)
 
 
 ###################################################
-### code chunk number 31: frame26
+### code chunk number 30: frame26
 ###################################################
 # addition of necessary variables to 
 colnames(framesamp) <- toupper(colnames(framesamp))
@@ -274,13 +272,13 @@ framecens$STRATO <- rep("999999",nrow(framecens))
 
 
 ###################################################
-### code chunk number 32: frame27
+### code chunk number 31: frame27
 ###################################################
 survey <- rbind(sample,framecens)
 
 
 ###################################################
-### code chunk number 33: frame28
+### code chunk number 32: frame28
 ###################################################
 survey$cens <- ifelse(survey$LABEL == "999999",1,0)
 table(survey$cens)

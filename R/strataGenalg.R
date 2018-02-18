@@ -9,6 +9,12 @@ strataGenalg <- function(errors, strata, cens, strcens,
     dominio, initialStrata, minnumstr, iter, pops, mut_chance, 
     elitism_rate, addStrataFactor, highvalue, suggestions, realAllocation,
 	writeFiles, showPlot) {
+  # if (writeFiles == TRUE) {
+  #   dire <- getwd()
+  #   direnew <- paste(dire,"/output",sep="")
+  #   if(!dir.exists(direnew)) dir.create(direnew)
+  #   setwd(direnew)
+  # }
     # --------------------------------------------------------------------------
     colnames(strata) <- toupper(colnames(strata))
     colnames(errors) <- toupper(colnames(errors))
@@ -134,6 +140,7 @@ strataGenalg <- function(errors, strata, cens, strcens,
         monitorFunc = monitor, iters = iter, popSize = pops, 
         mutationChance = mut_chance, elitism_rate, addStrataFactor, 
         evalFunc = evaluateMem, verbose = verb, showSettings = show, 
+        strata = strata
         )
     #
     # --------------------------------------------------------------------------
@@ -173,6 +180,8 @@ strataGenalg <- function(errors, strata, cens, strcens,
     soluz <- bethel(strcor, errors, minnumstr, printa = FALSE, 
         realAllocation = realAllocation)
 	risulta <- cbind(strcor, soluz)
+	cat("\n *** Sample cost: ", sum(soluz))
+	cat(paste("\n *** Number of strata: ", nrow(strcor)))
 	if (writeFiles == TRUE) {
 		sink()
 		sink(file = fileres, append = TRUE)
@@ -187,6 +196,9 @@ strataGenalg <- function(errors, strata, cens, strcens,
 	}
 	solution[[1]] <- v
 	solution[[2]] <- risulta
+	# if (writeFiles == TRUE) {
+	#   setwd(dire)
+	# }
 	return(solution)
     # End function
 }

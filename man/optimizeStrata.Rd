@@ -24,7 +24,7 @@ This function runs a set of other functions to optimise the stratification of a 
 	elitism_rate = 0.2,
 	highvalue = 1e+08, 
 	suggestions = NULL,
-	realAllocation = FALSE,
+	realAllocation = TRUE,
 	writeFiles = FALSE,
 	showPlot = TRUE
 	)
@@ -55,7 +55,10 @@ This function runs a set of other functions to optimise the stratification of a 
   (1 <--> number of domains). If 'alldomains' is set to TRUE, it is ignored
 }
   \item{initialStrata}{
-  This is the initial limit on the number of strata for each solution. Default is 3000
+  This is the initial limit on the number of strata for each solution. Default is the number of atomic strata. In cases of more than 
+  a domain, it has to be given as a vector, where each element indicates the number of initial strata in each domain.
+  If the parameter 'addStrataFactor' is equal to zero, then 'initialStrata' is equivalent to the maximum number of strata to be obtained
+  in the final solution.
 }
   \item{addStrataFactor}{
   This parameter indicates the probability that at each mutation the number of strata may increase with 
@@ -89,16 +92,17 @@ This function runs a set of other functions to optimise the stratification of a 
   Default is NULL.
 }
   \item{realAllocation}{
-  If FALSE, the allocation is based on INTEGER values; if TRUE, the allocation is based on REAL values
+  If FALSE, the allocation is based on INTEGER values; if TRUE, the allocation is based on REAL values.
+  Default is TRUE.
 }  
   \item{writeFiles}{
   Indicates if the various dataframes and plots produced during the execution have to be written in the working
   directory.
-  Default is "FALSE".
+  Default is FALSE.
 }
   \item{showPlot}{
   Indicates if the plot showing the trend in the value of the objective function has to be shown or not.
-  Default is "TRUE".
+  Default is TRUE.
 }
 }
 
@@ -124,7 +128,7 @@ solution <- optimizeStrata (
     strata = strata, 
     cens = NULL,
     strcens = FALSE,
-    initialStrata = 3000,
+    initialStrata = nrow(strata),
     addStrataFactor = 0.01,    
     minnumstr = 2,
     iter = 30,
@@ -133,7 +137,8 @@ solution <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = FALSE,
+	realAllocation = TRUE,
+	writeFiles = FALSE,
 	showPlot = TRUE)
 sum(ceiling(solution$aggr_strata$SOLUZ))
 head(solution$aggr_strata)
@@ -151,7 +156,7 @@ solution <- optimizeStrata (
     strata = swissstrata, 
     cens = NULL,
     strcens = FALSE,
-    initialStrata = 3000,
+    initialStrata = as.numeric(table(frame$domainvalue)),
     addStrataFactor = 0.01,    
     minnumstr = 2,
     iter = 60,
@@ -160,7 +165,8 @@ solution <- optimizeStrata (
     elitism_rate = 0.2,
     highvalue = 100000000,
     suggestions = NULL,
-	writeFile = FALSE,
+	realAllocation = TRUE,
+	writeFiles = FALSE,
 	showPlot = TRUE)
 sum(ceiling(solution$aggr_strata$SOLUZ))
 head(solution$aggr_strata)

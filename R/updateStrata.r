@@ -7,6 +7,12 @@
 # ----------------------------------------------------
 updateStrata <- function (strata, solution, writeFiles = FALSE) 
 {
+  # if (writeFiles == TRUE) {
+  #   dire <- getwd()
+  #   direnew <- paste(dire,"/output",sep="")
+  #   if(!dir.exists(direnew)) dir.create(direnew)
+  #   setwd(direnew)
+  # }
     colnames(strata) <- toupper(colnames(strata))
     newstrata <- strata
     newstrata$AGGR_STRATUM <- solution[[1]]
@@ -59,5 +65,8 @@ updateStrata <- function (strata, solution, writeFiles = FALSE)
         write.table(matstrord, file = "strata_aggregation.txt", 
             sep = "\t", row.names = FALSE, col.names = TRUE, 
             quote = FALSE)
+    # if (writeFiles == TRUE) {
+    #   setwd(dire)
+    # }
     return(newstrata)
 }

@@ -64,7 +64,9 @@ the best one. A very convenient solution to this, is the adoption of the evoluti
 genetic algorithm that may converge towards a near-optimal solution after a finite number of iterations. 
 The methodology is fully described in \cite{ballin:2013}, and a complete illustration of the package, together with 
 a comparison with the {\tt stratification} package, is in \cite{barcarol:2013}.
+Also a complete application in a case of network data is reported in \cite{ballin2016optimization}.
 The implementation of the genetic algorithm is based on a modification of the functions in the {\tt genalg} package (see \cite{willighagen:2005}).
+In particular, the crossover operator ha been modified on the basis of the indications given by \cite{oluing:2017}.
 
 \section [Procedural steps]{Procedural steps}
 The optimization of the sampling design starts by making the sampling frame available, defining the target estimates of the 
@@ -125,10 +127,7 @@ Among the others, there are the following variables (data are referred to 2003):
 \item Pop65P: number of men and women aged between 65 and over.
 \item POPTOT: total population.
 \end{itemize} 
-First, we define the identifier of the frame:
-<<frame2>>=
-swissframe <- NULL
-swissframe$id <- swissmunicipalities$Nom
+
 @
 Let us suppose we want to plan a survey whose target estimates are the totals of population by age class in each Swiss region. 
 In  this case, our Y variables will be:
@@ -138,16 +137,29 @@ In  this case, our Y variables will be:
 \item Y3: number of men and women aged between 40 and 64.
 \item Y4: number of men and women aged between 65 and over.
 \end{itemize} 
-So we execute the following statements:
-<<frame3>>=
-swissframe$Y1 <- swissmunicipalities$Pop020
-swissframe$Y2 <- swissmunicipalities$Pop2040
-swissframe$Y3 <- swissmunicipalities$Pop4065
-swissframe$Y4 <- swissmunicipalities$Pop65P
+
 @
 As for the auxiliary variables (Xs), we can use all of those characterising the area use (wood, mountain or pasture, cultivated, 
-industrial, with buildings). As these variables are of the continuous type, first we have to reduce them in a categorical (ordinal) 
-form. A suitable way to do so, is to apply a k-means clustering method (see \cite{hartigan:1979}) by using the function {\tt var.bin}:
+industrial, with buildings). 
+
+@
+Finally, we want to produce estimates not only for the whole country, but also for each one of the seven different regions.
+
+Function {\tt buildFrameDF} permits to organize data in a suitable mode for next processing:
+
+<<frame1>>=
+id = "Nom"
+X = c("POPTOT","Surfacesbois","Surfacescult","Alp","Airbat","Airind")
+Y = c("Pop020","Pop2040","Pop4065","Pop65P")
+domainvalue = "REG"
+swissframe <- buildFrameDF(swissmunicipalities,id,X,Y,domainvalue)
+str(swissframe)
+@
+
+As the X variables are of the continuous type, first we have to reduce them in a categorical (ordinal) 
+form. 
+
+A suitable way to do so, is to apply a k-means clustering method (see \cite{hartigan:1979}) by using the function {\tt var.bin}:
 <<frame4>>=
 library(SamplingStrata)
 swissframe$X1 <- var.bin(swissmunicipalities$POPTOT, bins=18)
@@ -159,17 +171,7 @@ swissframe$X6 <- var.bin(swissmunicipalities$Airind, bins=3)
 @
 Now, we have six different auxiliary variables of the categorical type, the first with 18 different modalities, the others 
 with 3 modalities.
-Finally, we have to set the values of the 'domainvalue' variable, which is mandatory. As we want to obtain estimates for each region, 
-we set:
-<<frame5>>=
-swissframe$domainvalue <- swissmunicipalities$REG
-swissframe <- data.frame(swissframe)
-@
-Now, the {\tt swissframe} dataframe looks like this way:
-<<frame6>>=
-head(swissframe)
-@
-that is the format required by the package. 
+
 We write the dataframe to a tab delimited file:
 <<frame7>>=
 write.table (swissframe, "swissframe.txt", row.names=FALSE,col.names=TRUE, sep="\t", quote=FALSE)
@@ -298,7 +300,10 @@ of Ys (for each Y, mean and standard deviation in strata)
 \item	{\tt cens}: the (optional) dataframe containing the 'take-all' strata, those strata whose units must be selected in whatever sample. 
 It has same structure than {\tt strata} dataframe 
 \item	{\tt strcens}: flag (TRUE/FALSE) to indicate if 'take-all' strata do exist or not. Default is FALSE 
-\item	{\tt initialStrata}: the initial limit on the number of strata for each solution. Default is 3000 
+\item	{\tt initialStrata}: This is the initial limit on the number of strata for each solution. Default is the number of atomic strata. In cases of more than 
+a domain, it has to be given as a vector, where each element indicates the number of initial strata in each domain.
+If the parameter {\tt addStrataFactor} is equal to zero, then {\tt initialStrata} is equivalent to the maximum number of strata to be obtained
+in the final solution. 
 \item	{\tt addStrataFactor}: this parameter indicates the probability that at each mutation the number of strata may increase with respect 
 to the current value. Default is 0.01 
 \item	{\tt minnumstr}: indicates the minimum number of units that must be allocated in each stratum. Default is 2 
@@ -314,8 +319,8 @@ Default is 0.2.
 will be introduced in the initial population. Default is NULL.
 \item   {\tt realAllocation} : if FALSE, the allocation is based on INTEGER values; if TRUE, the allocation is based on REAL values.
 Default is FALSE.
-\item	{\tt writeFile} : indicates if at the end of the processing the resulting strata will be outputted in a delimited file.
-Default is "YES".
+\item	{\tt writeFiles} : indicates if at the end of the processing the resulting strata will be outputted in a delimited file.
+Default is TRUE.
 \end{enumerate}
 In the case of the Swiss municipalities, this is a possible choice of the value of the parameters:
 <<frame20>>=
@@ -324,7 +329,7 @@ solution <- optimizeStrata(
 	strata = swissstrata, 
 	cens = NULL, 
 	strcens = FALSE, 
-	initialStrata = nrow(strata), 
+	initialStrata = as.numeric(table(swissstrata$DOM1)), 
 	addStrataFactor = 0.00, 
 	minnumstr = 2, 
 	iter = 40, 
@@ -337,6 +342,9 @@ solution <- optimizeStrata(
 	writeFiles = TRUE)
 sum(ceiling(solution$aggr_strata$SOLUZ))
 @
+Note how the {\tt initialStrata} parameter is set: by giving the number of the strata in each domain. Another possibility is to set a
+pre-determined value for each domain, for instance equal in each domain, as {\tt c(5,5,5,5,5,5,5,5)}.
+
 The execution of {\tt optimizeStrata} produces the solution of 7 different optimization problems, one for each domain.
 We have reported in Figure ~\ref{graph1} the convergence plot regarding the third domain. 
 The results of the execution are contained in the list 'solution', composed by two elements:
@@ -347,9 +355,37 @@ The results of the execution are contained in the list 'solution', composed by t
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=1.000\textwidth]{plotdom3}
 \caption{This graph illustrates the convergence of the solution to the final one starting from the initial one (i.e. the one related to the atomic strata). Along the x-axis are reported the executed iterations, from 1 to the maximum, while on the y-axis are reported the size of the sample required to satisfy precision constraints. The upper (red) line represent the average sample size for each iteration, while the lower (black) line represents the best solution found until the i-th iteration. \label{graph1}}
 \end{figure}
+\graphicspath{{./output/}}
+\includegraphics[width=1.000\textwidth]{plotdom3}~
+
+\section[Adjustment of the final sampling size]
+{Adjustment of the final sampling size}
+After the optimization step, the final sample size is the result of the allocation of units in final strata. This allocation is such that the precision constraints are expected to be satisfied. 
+Actually, three possible situations may occur:
+\begin{enumerate}
+\item	the resulting sample size is acceptable;
+\item	the resulting sample size is to high, it is not affordable with respect to the available budget;
+\item the resulting sample size is too low, the available budget permits to increase the number of units.
+\end{enumerate}
+In the first case, no action is required.
+In the second case, it is necessary to reduce the number of units, by equally applying the same reduction rate in each stratum.
+In the third case, we could either to set more tight precision constraints, or proceed to increase the sample size by applying the same increase rate in each stratum.
+This increase/reduction process is iterative, as by applying the same rate we could find that in some strata there are not enough units to increase or to reduce.
+The function 'adjustSize' permits to obtain the desired final sample size.
+Let us suppose that the obtained sample size is not affordable. We can reduce it by executing the following code:
+<<frame29>>=
+adjustedStrata <- adjustSize(size=200,strata=solution$aggr_strata,cens=NULL)
+sum(adjustedStrata$SOLUZ)
+@
+Instead, if we want to increase the size because the budget allows to do this, then this is the code:
+<<frame30>>=
+adjustedStrata <- adjustSize(size=400,strata=solution$aggr_strata,cens=NULL)
+sum(adjustedStrata$SOLUZ)
+@
+The difference between the desired sample size and the actual adjusted size depends on the number of strata in the optimized solution. Consider that the adjustment is performed in each stratum by taking into account the relative difference between the current sample size and the desired one: this produces an allocation that is expressed by a real number, that must be rounded. The higher the number of strata, the higher the impact of the rounding in all strata on the final adjusted  sample size.
+
 
 \section[Analysis of results]
 {Analysis of results}
@@ -481,7 +517,9 @@ solution <- optimizeStrata(
 	strata = strata, 
 	cens = cens, 
 	strcens = TRUE, 
-	initialStrata = nrow(strata), 
+	alldomains = TRUE,
+	dom = NULL,
+	initialStrata = as.numeric(table(strata$DOM1)), 
 	addStrataFactor = 0.00, 
 	minnumstr = 2, 
 	iter = 40, 
@@ -522,6 +560,9 @@ and this is the proportion of sampling and censused units:
 survey$cens <- ifelse(survey$LABEL == "999999",1,0)
 table(survey$cens)
 @
+
+
+
 
 \clearpage
  

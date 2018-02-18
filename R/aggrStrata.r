@@ -59,13 +59,21 @@ aggrStrata <- function(strata, nvar, vett, censiti, dominio) {
         string9, string8, "'N')],by=list(strwrk$gruppo),FUN=sum)", 
         sep = "")
     eval(parse(text = statement))
+    # for (k1 in varloop) {
+    #     statement <- paste("M", k1, " <- round((strwrkagg$TM", 
+    #         k1, " / strwrkagg$N),digits=9)", sep = "")
+    #     eval(parse(text = statement))
+    #     statement <- paste("S", k1, " <- round(sqrt((1/strwrkagg$N)*(strwrkagg$TVAR", 
+    #         k1, " + strwrkagg$diff", k1, ")),digits=9)", sep = "")
+    #     eval(parse(text = statement))
+    # }
     for (k1 in varloop) {
-        statement <- paste("M", k1, " <- round((strwrkagg$TM", 
-            k1, " / strwrkagg$N),digits=4)", sep = "")
-        eval(parse(text = statement))
-        statement <- paste("S", k1, " <- round(sqrt((1/strwrkagg$N)*(strwrkagg$TVAR", 
-            k1, " + strwrkagg$diff", k1, ")),digits=4)", sep = "")
-        eval(parse(text = statement))
+      statement <- paste("M", k1, " <- (strwrkagg$TM", 
+                         k1, " / strwrkagg$N)", sep = "")
+      eval(parse(text = statement))
+      statement <- paste("S", k1, " <- sqrt((1/strwrkagg$N)*(strwrkagg$TVAR", 
+                         k1, " + strwrkagg$diff", k1, "))", sep = "")
+      eval(parse(text = statement))
     }
     strato <- strwrkagg$Group.1
     N <- strwrkagg$N

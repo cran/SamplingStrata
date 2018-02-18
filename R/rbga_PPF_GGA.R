@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------
 # This function is a modified version of the corresponding one
 # in the package "genalg" by E. Willighagen available on the CRAN
-# Date of last modification: January 3, 2013
+# Date of last modification: October 12, 2017
 # Modified by Giulio Barcaroli
 #-----------------------------------------------------------------
 rbga <- function(stringMin=c(), stringMax=c(),
@@ -14,7 +14,8 @@ rbga <- function(stringMin=c(), stringMax=c(),
                  #------------------
                  elitism=NA,
                  monitorFunc=NULL, evalFunc=NULL,
-                 showSettings=FALSE, verbose=FALSE) {
+                 showSettings=FALSE, verbose=FALSE,
+                 strata) {
     if (is.null(evalFunc)) {
         stop("A evaluation function must be provided. See the evalFunc parameter.");
     }
@@ -70,7 +71,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
 #                population[(suggestionCount+1):popSize,var] = stringMin[var] +
 #                                   runif(popSize-suggestionCount)*(stringMax[var]-stringMin[var]);
 #				population[(suggestionCount+1):popSize,var]=sample.int(stringMax[var],size=(popSize-suggestionCount),replace=TRUE,prob=NULL)
-				population[(suggestionCount+1):popSize,var]=sample.int(stringMax[var],size=(popSize-suggestionCount),replace=TRUE,prob=NULL)
+				if (suggestionCount < popSize) population[(suggestionCount+1):popSize,var]=sample.int(stringMax[var],size=(popSize-suggestionCount),replace=TRUE,prob=NULL)
             }
         } else {
  #           if (verbose) cat("Starting with random values in the given domains...\n");
@@ -92,6 +93,8 @@ rbga <- function(stringMin=c(), stringMax=c(),
         # do iterations
         bestEvals = rep(NA, iters);
         meanEvals = rep(NA, iters);
+        soluz = as.list(rep(NA, popSize));
+        samprate = as.list(rep(NA, popSize));
         evalVals = rep(NA, popSize);
 		# Modifica 4: controllo di mutationChance sulla base del bestEval
 		costante <- 0
@@ -103,10 +106,16 @@ rbga <- function(stringMin=c(), stringMax=c(),
 #            if (verbose) cat("Calculating evaluation values... ");
             for (object in 1:popSize) {
                 if (is.na(evalVals[object])) {
-                    evalVals[object] = evalFunc(population[object,]);
+                  indices=population[object,]
+                  vett=floor(indices)
+                  censiti <- 0
+                    evalVals[object] = sum(evalFunc(vett));
+                    soluz[[object]] = evalFunc(population[object,]);
+                    samprate[[object]] = tapply(strata$N,indices,sum)/soluz[[object]];
 #                    if (verbose) cat(".");
                 }
             }
+            
             bestEvals[iter] = min(evalVals);
             meanEvals[iter] = mean(evalVals);
 			# Modification 3: mutationChance is increased in case of potential local minimum
@@ -131,7 +140,7 @@ rbga <- function(stringMin=c(), stringMax=c(),
                               stringMin=stringMin, stringMax=stringMax,
                               popSize=popSize, iter=iter, iters=iters,
                               population=population, elitism=elitism, mutationChance=mutationChance,
-                              evaluations=evalVals, best=bestEvals, mean=meanEvals);
+                              evaluations=evalVals, best=bestEvals, mean=meanEvals)
                 class(result) = "rbga";
                 
                 monitorFunc(result);
@@ -158,20 +167,51 @@ rbga <- function(stringMin=c(), stringMax=c(),
 #                    if (verbose) cat("  applying crossover...\n");
                     for (child in (elitism+1):popSize) {
                         # ok, pick two random parents
-                        parentIDs = sample(1:popSize, 2)
+                        # parentIDs = sample(1:popSize, 2)
+                        # select parents proportionally to fitness
+                        # expon = 4
+                        # denom = sum((max(sortedEvaluations$x)+1-sortedEvaluations$x)^expon)
+                        # probs = (max(sortedEvaluations$x)+1-sortedEvaluations$x)^expon/denom
+                        # parentIDs = sample(1:popSize, 2, prob = probs)
+                        # parents = sortedPopulation[parentIDs,];
+                        # crossOverPoint = sample(0:vars,1);
+                        # if (crossOverPoint == 0) {
+                        #     newPopulation[child, ] = parents[2,]
+                        #     newEvalVals[child] = sortedEvaluations$x[parentIDs[2]]
+                        # } else if (crossOverPoint == vars) {
+                        #     newPopulation[child, ] = parents[1,]
+                        #     newEvalVals[child] = sortedEvaluations$x[parentIDs[1]]
+                        # } else {
+                        #     newPopulation[child, ] = 
+                        #         c(parents[1,][1:crossOverPoint], 
+                        #           parents[2,][(crossOverPoint+1):vars])
+                        # }
+                        # Selection of parents with probability proportional to fitness
+                        # (from O'Luing et al)
+                        # fitness = dnorm(1:popSize, mean = 0, sd = (popSize/3))
+                        # Alternative 1
+                        # expon = 4
+                        # fitness = sortedEvaluations$x^expon/sum(sortedEvaluations$x^expon)
+                        # Alternative 2
+                        v <- sort(sortedEvaluations$x)
+                        k = 2
+                        probs <- 1 / (1 + exp(-((k*sd(v)/mean(v))*(v - mean(v))))) / length(v)
+                        fitness <- sort(probs, decreasing = TRUE)
+                        parentIDs = sample(1:popSize, 2, prob = fitness)
                         parents = sortedPopulation[parentIDs,];
-                        crossOverPoint = sample(0:vars,1);
-                        if (crossOverPoint == 0) {
-                            newPopulation[child, ] = parents[2,]
-                            newEvalVals[child] = sortedEvaluations$x[parentIDs[2]]
-                        } else if (crossOverPoint == vars) {
-                            newPopulation[child, ] = parents[1,]
-                            newEvalVals[child] = sortedEvaluations$x[parentIDs[1]]
-                        } else {
-                            newPopulation[child, ] = 
-                                c(parents[1,][1:crossOverPoint], 
-                                  parents[2,][(crossOverPoint+1):vars])
-                        }
+                        # GGA crossover
+                        G1 <- sort(unique(parents[1,]))
+                        G2 <- sort(unique(parents[2,]))
+                        ######################## parte nuova ###################
+                        pikG1<-samprate[[parentIDs[1]]]
+#                        s<-ppss(pikG1^2,round(length(G1)/2))
+						s <- sample(1:length(pikG1),round(length(pikG1)/2),prob=pikG1^2)
+                        #s<-sample(1:length(pikG1), round(length(G1)/2, prob = fitness))
+                      cross <- G1[c(s)]
+                        offspring <- parents[2,]
+                        # increase <- length(G2)-min((parents[1,][parents[1,] %in% cross]))+1
+                        offspring[parents[1,] %in% cross] <- (parents[1,])[parents[1,] %in% cross]
+                        newPopulation[child, ] <- recode(offspring)
                     }
                 } else { # otherwise nothing to crossover
 #                    if (verbose) cat("  cannot crossover (#vars=1), using new randoms...\n");

@@ -5,6 +5,12 @@
 # Date: 4 January 2012
 # ----------------------------------------------------
 updateFrame <- function(frame, newstrata, writeFiles = FALSE) {
+  # if (writeFiles == TRUE) {
+  #   dire <- getwd()
+  #   direnew <- paste(dire,"/output",sep="")
+  #   if(!dir.exists(direnew)) dir.create(direnew)
+  #   setwd(direnew)
+  # }
     colnames(frame) <- toupper(colnames(frame))
     colnames(newstrata) <- toupper(colnames(newstrata))
     nvarX <- length(grep("X", names(newstrata)))
@@ -34,5 +40,8 @@ updateFrame <- function(frame, newstrata, writeFiles = FALSE) {
 		write.table(framenew, "framenew.txt", row.names = FALSE, 
 			sep = "\t", quote = FALSE)
 	}
+    # if (writeFiles == TRUE) {
+    #   setwd(dire)
+    # }
     return(framenew)
 }
