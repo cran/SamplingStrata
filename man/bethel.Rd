@@ -1,11 +1,11 @@
 \name{bethel}
-\Rdversion{1.1}
+\Rdversion{1.3}
 \alias{bethel}
 \title{
 Multivariate optimal allocation
 }
 \description{
-Multivariate optimal allocation for different domains of interest in stratified sample design 
+Multivariate optimal allocation for different domains of interest in stratified sample design under a given stratification of the sampling frame
 }
 \usage{
 bethel  (
@@ -60,6 +60,7 @@ Daniela Pagliuca with contributions from Teresa Buglielli and Giulio Barcaroli
 }
 
 \examples{
+\dontrun{
 library(SamplingStrata)
 data(strata)
 data(errors)
@@ -67,6 +68,7 @@ n <- bethel(strata, errors, printa=TRUE)
 sum(n)
 attributes(n)$confr
 attributes(n)$outcv
+}
 }
 \keyword{ survey }
 

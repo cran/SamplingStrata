@@ -1,18 +1,18 @@
 \name{buildFrameDF}
-\Rdversion{1.2}
+\Rdversion{1.3}
 \alias{buildFrameDF}
 \title{
-Builds the "frame" dataframe from a dataset containing information on
+Builds the "sampling frame" dataframe from a dataset containing information on
 all the units in the population of reference
 }
 \description{
 This function allows to build the information regarding the sampling frame of the population of reference.
 Mandatory variables are:
-- the name of the dataset containing the sampling frame of the population of reference
-- an identifier (Id)
-- a set of auxiliary variables X
-- a set of target variables Y
-- the indicator of the domain to which the unit belongs
+(i) the name of the dataset containing the sampling frame of the population of reference
+(ii) an identifier (Id)
+(iii) a set of auxiliary variables X
+(iv) a set of target variables Y
+(v) the indicator of the domain to which the unit belongs
 }
 \usage{
 buildFrameDF(df, id, X, Y, domainvalue)
@@ -46,6 +46,7 @@ Giulio Barcaroli
 }
 
 \examples{
+\dontrun{
 data(swissmunicipalities)
 id = "Nom"
 X = c("Surfacesbois","Surfacescult")
@@ -54,5 +55,7 @@ domainvalue = "REG"
 frame <- buildFrameDF(swissmunicipalities,id,X,Y,domainvalue)
 head(frame)
 }
+}
 \keyword{ survey }
+
 

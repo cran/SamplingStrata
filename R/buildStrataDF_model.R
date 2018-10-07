@@ -1,10 +1,13 @@
 # ----------------------------------------------------
 # Function to produce the "strata" dataframe
 # starting from the available sampling frame
+# taking into account anticipated variance
 # Author: Giulio Barcaroli
-# Date: 23 September 2015
+# Date: May 2018
 # ----------------------------------------------------
-buildStrataDF <- function(dataset) {
+buildStrataDF <- function(dataset, 
+                          model=NULL, 
+                          progress=TRUE) {
     # stdev1 is for sampling data
     stdev1 <- function(x, w) {
         mx <- sum(x * w)/sum(w)
@@ -19,20 +22,37 @@ buildStrataDF <- function(dataset) {
     nvarX <- length(grep("X", names(dataset)))
     nvarY <- length(grep("Y", names(dataset)))
     if (length(grep("WEIGHT", names(dataset))) == 1) {
-        cat("\nComputations have been done on sampling data\n")
+        cat("\nComputations are being done on sampling data\n")
         stdev <- "stdev1"
     }
     if (length(grep("WEIGHT", names(dataset))) == 0) {
         dataset$WEIGHT <- rep(1, nrow(dataset))
         stdev <- "stdev2"
-        cat("\nComputations have been done on population data\n")
+        cat("\nComputations are being done on population data\n")
     }
+    #---------------------------------------------------------
+    # Check the validity of the model
+    if (!is.null(model)) {
+      if (nrow(model) != nvarY) stop("A model for each Y variable must be specified")
+      for (i in (1:nrow(model))) {
+        if (!(model$type[i] %in% c("linear","loglinear"))) stop("Type of model for Y variable ",i,"misspecified")
+        if (is.na(model$beta[i])) stop("beta for Y variable ",i,"must be specified")
+        if (is.na(model$sig2[i])) stop("sig2 for Y variable ",i,"must be specified")
+        if (model$type[i] == "linear" & is.na(model$gamma[i])) stop("gamma for Y variable ",i,"must be specified")
+      }
+    }
+    #---------------------------------------------------------     
     numdom <- length(levels(as.factor(dataset$DOMAINVALUE)))
     stratatot <- NULL
+    # create progress bar
+    if (progress == TRUE) pb <- txtProgressBar(min = 0, max = numdom, style = 3)
     # begin domains cycle
     for (d in (1:numdom)) {
-		dom <- levels(as.factor(dataset$DOMAINVALUE))[d]
-		domain <- dataset[dataset$DOMAINVALUE == dom, ]
+      if (progress == TRUE) Sys.sleep(0.1)
+      # update progress bar
+      if (progress == TRUE) setTxtProgressBar(pb, d)
+		  dom <- levels(as.factor(dataset$DOMAINVALUE))[d]
+		  domain <- dataset[dataset$DOMAINVALUE == dom, ]
         listX <- NULL
         namesX <- NULL
         for (i in 1:nvarX) {
@@ -64,18 +84,50 @@ buildStrataDF <- function(dataset) {
                 i, ")]", sep = "")
             eval(parse(text = stmt))
             STRATO <- factor(STRATO)
-            stmt <- paste("M", i, " <- tapply(WEIGHT * Y,STRATO,sum) / tapply(WEIGHT,STRATO,sum)", 
-                sep = "")
-            eval(parse(text = stmt))
-            samp <- NULL
-            stmt <- paste("samp <- domain[!is.na(domain$Y", i, 
-                "),]", sep = "")
-            eval(parse(text = stmt))
-            l.split <- split(samp, samp$STRATO, drop = TRUE)
-            stmt <- paste("S", i, " <- sapply(l.split, function(df,x,w) ", 
-                stdev, "(df[,x],df[,w]), x='Y", i, "', w='WEIGHT')", 
-                sep = "")
-            eval(parse(text = stmt))
+            # Computation of M and S without model --------------------------
+            if (is.null(model)) {
+              stmt <- paste("M", i, " <- tapply(WEIGHT * Y,STRATO,sum) / tapply(WEIGHT,STRATO,sum)", sep = "")
+              eval(parse(text = stmt))
+              samp <- NULL
+              stmt <- paste("samp <- domain[!is.na(domain$Y", i, "),]", sep = "")
+              eval(parse(text = stmt))
+              l.split <- split(samp, samp$STRATO, drop = TRUE)
+              stmt <- paste("S", i, " <- sapply(l.split, function(df,x,w) ", 
+                  stdev, "(df[,x],df[,w]), x='Y", i, "', w='WEIGHT')", 
+                  sep = "")
+              eval(parse(text = stmt))
+            }
+            # Computation of M and S with linear model --------------------------
+            if (!is.null(model)) {
+              if (model$type[i] == "linear") {
+                stmt <- paste("M", i, " <- tapply(WEIGHT * Y * model$beta[", i, "],STRATO,sum) / tapply(WEIGHT,STRATO,sum)", sep = "")
+                eval(parse(text = stmt))
+                samp <- NULL
+                stmt <- paste("samp <- domain[!is.na(domain$Y", i, "),]", sep = "")
+                eval(parse(text = stmt))
+                l.split <- split(samp, samp$STRATO, drop = TRUE)
+                stmt <- paste("S", i, " <- sapply(l.split, function(df,x,w) ", 
+                              stdev, "(df[,x],df[,w]), x='Y", i, "', w='WEIGHT')", 
+                              sep = "")
+                eval(parse(text=stmt))
+                st <- paste("gammas <- tapply(Y^model$gamma[",i,"],STRATO,sum) / as.numeric(table(STRATO))",sep="")
+                eval(parse(text=st))
+                st <- paste("S",i," <- sqrt(S",i,"^2 * model$beta[",i,"]^2 + model$sig2[",i,"] * gammas)",sep="")
+                eval(parse(text=st))   
+              }
+              # Computation of M and S with loglinear model --------------------------
+              if (!is.null(model) & model$type[i] == "loglinear") {
+                stmt <- paste("M", i, " <- tapply(WEIGHT * Y ^ model$beta[",i,"],STRATO,sum) / tapply(WEIGHT,STRATO,sum)", sep = "")
+                eval(parse(text = stmt))
+                ph <- 1  # remember to calculate ph as proportion of Y > 0
+                st <- paste("S", i, " <- sqrt(ph * (( exp(model$sig2[", i, "])* 
+                               tapply(WEIGHT * Y^(2*model$beta[", i, "]),STRATO,sum)/as.numeric(table(STRATO)) -
+                               ph * (tapply(WEIGHT * Y^model$beta[", i, "],STRATO,sum)/as.numeric(table(STRATO)))^2)))",sep="")
+                eval(parse(text = st))
+              }
+            }
+            # ------------------------------------------------------------------------
+            if (is.null(model)) eval(parse(text = stmt))
             stmt <- paste("stratirid <- unlist(attr(M", i, ",'dimnames'))", 
                 sep = "")
             eval(parse(text = stmt))
@@ -119,11 +171,13 @@ buildStrataDF <- function(dataset) {
         }
         stratatot <- rbind(stratatot, strata)
     }  # end domain cycle
+    if (progress == TRUE) close(pb)
     colnames(stratatot) <- toupper(colnames(stratatot))
     stratatot$DOM1 <- as.factor(stratatot$DOM1)
-    write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t", 
+    write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t",
                 dec = ".", row.names = FALSE)
     stratatot <- read.delim("strata.txt")
+    unlink("strata.txt")
     options("scipen"=100)
     for (i in (1:nvarY)) {
       for (j in (1:nrow(stratatot))) {
@@ -131,8 +185,11 @@ buildStrataDF <- function(dataset) {
         eval(parse(text=stmt))
       }
     }
-    write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t", 
-        dec = ".", row.names = FALSE)
-    stratatot <- read.delim("strata.txt")
+    # if (writeFiles == TRUE )
+    # write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t", 
+    #     dec = ".", row.names = FALSE)
+    # stratatot <- read.delim("strata.txt")
+    cat("\nNumber of strata: ",nrow(stratatot))
+    cat("\n... of which with only one unit: ",sum(stratatot$N==1))
     return(stratatot)
 }

@@ -7,8 +7,14 @@
 tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = strata, 
     cens = NULL, strcens = FALSE, alldomains = FALSE, dom = 1, 
     initialStrata, addStrataFactor, minnumstr, iter, pops, mut_chance, 
-    elitism_rate) 
+    elitism_rate,writeFiles=FALSE) 
 {
+  if (writeFiles == TRUE) {
+    dire <- getwd()
+    direnew <- paste(dire,"/simulation",sep="")
+    if(!dir.exists(direnew)) dir.create(direnew)
+    setwd(direnew)
+  }
 	frame <- frame[frame$domainvalue == dom, ]
 	colnames(frame) <- toupper(colnames(frame))
 	checkInput(errors,strata,frame)
@@ -82,7 +88,7 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
             dom = dom, initialStrata = initialStrata[i], addStrataFactor = addStrataFactor[i], 
             minnumstr = minnumstr[i], iter = iter[i], pops = pops[i], 
             mut_chance = mut_chance[i], elitism_rate = elitism_rate[i], 
-            realAllocation = TRUE, highvalue = 1e+08, suggestions = NULL, writeFiles=TRUE)
+            realAllocation = TRUE, highvalue = 1e+08, suggestions = NULL, writeFiles=FALSE)
         file.remove("outstrata.txt")
         eval(parse(text = stmt))
         stmt <- paste("file.remove('strata_dom", dom, "_iter", 
@@ -135,10 +141,12 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
                 sep = "")
             eval(parse(text = stmt))
         }
-        sink("Iteration.txt", append = TRUE)
-        cat("\nIteration :", i, "\n")
-        simula[i, ]
-        sink()
+        if (writeFiles == TRUE) {
+          sink("Iteration.txt", append = TRUE)
+          cat("\nIteration :", i, "\n")
+          simula[i, ]
+          sink()
+        }
     }
     ind <- which(simula$cost == min(simula$cost))
     cat("--------------------")
@@ -156,6 +164,7 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
     cat("nelitism_rate: ", elitism_rate[ind])
     cat("n--------------------")
     res <- paste("results_", dom, ".csv", sep = "")
+    if (writeFiles == TRUE) {
     write.table(simula, res, row.names = FALSE, col.names = TRUE, 
         quote = FALSE, sep = ",")
     dif <- paste("details_", dom, ".csv", sep = "")
@@ -165,15 +174,15 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
     stmt <- paste("pdf('strata_costs_", dom, ".pdf', width=14, height=10)", 
         sep = "")
     eval(parse(text = stmt))
-	split.screen(c(1, 2))
+	  split.screen(c(1, 2))
     screen(1)
     plot(simula$nsimul, simula$nstrati, xlim = c(1, nrow(simula)), 
-        , xlab = "Runs", ylab = "Number of strata", 
+        xlab = "Runs", ylab = "Number of strata", 
         bty = "n")
     title("Number of optimal strata / optimization run",cex.main=1.0,font.main=1)
     lines(simula$nsimul, simula$nstrati)
     screen(2)
-    plot(simula$nsimul, simula$cost, xlim = c(1, nrow(simula)), , xlab = "Runs", 
+    plot(simula$nsimul, simula$cost, xlim = c(1, nrow(simula)), xlab = "Runs", 
         ylab = "Sample cost", bty = "n")
     title("Solution cost / optimization run",cex.main=1.0,font.main=1)
     lines(simula$nsimul, simula$cost)
@@ -206,4 +215,9 @@ tuneParameters <- function (noptim, nsampl, frame, errors = errors, strata = str
         close.screen(all.screens = TRUE)
 		dev.off()
     }
+    }
+    if (writeFiles == TRUE) {
+      setwd(dire)
+    } 
+    return(simula)
 }

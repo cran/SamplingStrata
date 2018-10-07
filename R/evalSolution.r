@@ -1,12 +1,15 @@
-evalSolution <- function (frame, outstrata, nsampl = 100, cens = NULL, 
-                          writeFiles = FALSE) 
+evalSolution <- function (frame, outstrata, 
+                          nsampl = 100, 
+                          cens = NULL, 
+                          writeFiles = TRUE,
+                          progress = TRUE) 
 {
-  # if (writeFiles == TRUE) {
-  #   dire <- getwd()
-  #   direnew <- paste(dire,"/output",sep="")
-  #   if(!dir.exists(direnew)) dir.create(direnew)
-  #   setwd(direnew)
-  # }
+  if (writeFiles == TRUE) {
+    dire <- getwd()
+    direnew <- paste(dire,"/simulation",sep="")
+    if(!dir.exists(direnew)) dir.create(direnew)
+    setwd(direnew)
+  }
   numY <- length(grep("Y", toupper(colnames(frame))))
   numdom <- length(levels(as.factor(frame$DOMAINVALUE)))
   param <- array(0, c(numY, numdom))
@@ -17,7 +20,12 @@ evalSolution <- function (frame, outstrata, nsampl = 100, cens = NULL,
   }
   estim <- array(0, c(numdom, nsampl, numY))
   differ <- array(0, c(numdom, nsampl, numY))
+  # create progress bar
+  if (progress == TRUE) pb <- txtProgressBar(min = 0, max = nsampl, style = 3)
   for (j in (1:nsampl)) {
+    if (progress == TRUE) Sys.sleep(0.1)
+    # update progress bar
+    if (progress == TRUE) setTxtProgressBar(pb, j)
     samp <- selectSample(frame, outstrata, verbatim = FALSE)
     if (!is.null(cens)) 
       samp <- rbind(cens, samp)
@@ -28,6 +36,7 @@ evalSolution <- function (frame, outstrata, nsampl = 100, cens = NULL,
       eval(parse(text = stmt))
     }
   }
+  if (progress == TRUE) close(pb)
   for (j in (1:nsampl)) {
     for (i in (1:numdom)) {
       for (k in 1:numY) {
@@ -134,43 +143,47 @@ evalSolution <- function (frame, outstrata, nsampl = 100, cens = NULL,
 ############################################  
   if (numdom > 1) {
     if (writeFiles == TRUE) 
-      pdf("cv.pdf", width = 7, height = 5)
+    # pdf("cv.pdf", width = 7, height = 5)
+    png("cv.png")
     boxplot(val ~ cv, data = cv1, col = "orange", main = "Distribution of CV's in the domains", 
             xlab = "Variables Y", ylab = "Value of CV")
     if (writeFiles == TRUE) 
       dev.off()
     if (writeFiles == TRUE) 
-      pdf("rel_bias.pdf", width = 7, height = 5)
+      # pdf("rel_bias.pdf", width = 7, height = 5)
+      png("rel_bias.png")
     boxplot(bias[,-ncol(bias)], col = "orange", main = "Distribution of relative bias in the domains", 
             xlab = "Variables Y", ylab = "Relative bias")
     if (writeFiles == TRUE) 
       dev.off()
+    
   }
-  if (writeFiles == TRUE) 
-    pdf("differences.pdf", width = 14, height = 10)
-  k <- ceiling(numY/4)
-  for (j in 1:k) {
-    split.screen(c(2, 2))
-    for (i in 1:4) {
-      if (i + 4 * (j - 1) <= numY) {
-        stmt <- paste("screen(", i, ")", sep = "")
-        eval(parse(text = stmt))
-        stmt <- paste("boxplot(diff", i, "~dom,data=diff,ylab='Differences',xlab='Domain',col = 'orange')", 
-                      sep = "")
-        eval(parse(text = stmt))
-        stmt <- paste("mtext(expression(Y", i, "), side=3, adj=0, cex=1.0, line=1)", 
-                      sep = "")
-        eval(parse(text = stmt))
-      }
-    }
-    close.screen(all.screens = TRUE)
-  }
-  if (writeFiles == TRUE) 
-    dev.off()
+  # if (writeFiles == TRUE) 
+  # # pdf("differences.pdf", width = 14, height = 10)
+  # png("differences.png")
+  # k <- ceiling(numY/4)
+  # for (j in 1:k) {
+  #   split.screen(c(2, 2))
+  #   for (i in 1:4) {
+  #     if (i + 4 * (j - 1) <= numY) {
+  #       stmt <- paste("screen(", i, ")", sep = "")
+  #       eval(parse(text = stmt))
+  #       stmt <- paste("boxplot(diff", i, "~dom,data=diff,ylab='Differences',xlab='Domain',col = 'orange')", 
+  #                     sep = "")
+  #       eval(parse(text = stmt))
+  #       stmt <- paste("mtext(expression(Y", i, "), side=3, adj=0, cex=1.0, line=1)", 
+  #                     sep = "")
+  #       eval(parse(text = stmt))
+  #     }
+  #   }
+  #   close.screen(all.screens = TRUE)
+  # }
+  # if (writeFiles == TRUE) 
+  #   dev.off()
   # results <- list(coeff_var = cv1, bias = bias1)
   results <- list(coeff_var = cv, rel_bias = bias)
-  # if (writeFiles == TRUE) {
-  #   setwd(dire)
-  # }
+  if (writeFiles == TRUE) {
+    setwd(dire)
+  }
   return(results)
 }

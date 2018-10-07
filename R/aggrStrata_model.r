@@ -5,7 +5,14 @@
 # Author: Giulio Barcaroli
 # Date: 4 January 2012
 # ----------------------------------------------------
-aggrStrata <- function(strata, nvar, vett, censiti, dominio) {
+aggrStrata <- function(strata, 
+                       nvar, 
+                       vett, 
+                       censiti, 
+                       dominio) {
+    colnames(strata) <- toupper(colnames(strata))
+    # verify if strata are one for each unit in the frame
+    if (sum(strata$N==1)==nrow(strata)) strataeqframe=TRUE else strataeqframe=FALSE
     strata <- cbind(strata, vett)
     varloop <- c(1:nvar)
     N <- strata$N
@@ -23,9 +30,11 @@ aggrStrata <- function(strata, nvar, vett, censiti, dominio) {
         statement <- paste("TM", k1, " <- strata$M", k1, " * strata$N", 
             sep = "")
         eval(parse(text = statement))
-        statement <- paste("TVAR", k1, " <- strata$S", k1, "**2 * (strata$N - 1)", 
-            sep = "")
+        #--------- Modifica
+        if (strataeqframe==TRUE) statement <- paste("TVAR", k1, " <- strata$S", k1, "**2", sep = "")
+        if (strataeqframe==FALSE) statement <- paste("TVAR", k1, " <- strata$S", k1, "**2 * (strata$N - 1)", sep = "")
         eval(parse(text = statement))
+        #-----------------------------
         string2 <- paste(string2, "TM", k1, ",", sep = "")
         string3 <- paste(string3, "TVAR", k1, ",", sep = "")
         string5 <- paste(string5, "'TM", k1, "',", sep = "")
