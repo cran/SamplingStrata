@@ -5,6 +5,7 @@
 # Authors: Giulio Barcaroli 
 # with a contribution from Diego Zardetto
 # Date: 4 January 2012
+# Last updtae: 30 October 2018
 # --------------------------------------------------------------------------
 selectSample <- function(frame, outstrata, writeFiles = FALSE,verbatim=TRUE) {
     strata.sample <- function(frame, strata, nh, repl) {
@@ -24,7 +25,7 @@ selectSample <- function(frame, outstrata, writeFiles = FALSE,verbatim=TRUE) {
     colnames(frame) <- toupper(colnames(frame))
     colnames(outstrata) <- toupper(colnames(outstrata))
     outstrata$SOLUZ <- round(outstrata$SOLUZ)  # rounding of allocation numbers
-    numdom <- length(levels(as.factor(frame$DOMAINVALUE)))
+    numdom <- length(levels(droplevels(as.factor(frame$DOMAINVALUE))))
     samptot <- NULL
     chktot <- NULL
     # begin domains cycle
@@ -32,10 +33,10 @@ selectSample <- function(frame, outstrata, writeFiles = FALSE,verbatim=TRUE) {
 		for (d in (1:numdom)) {
 			domframe <- frame[frame$DOMAINVALUE == d, ]
 			domstrata <- outstrata[outstrata$DOM1 == d, ]
-			strataord <- domstrata[order(domstrata$STRATO), ]
+			strataord <- domstrata[order(as.numeric(domstrata$STRATO)), ]
 			lista <- domframe
 			lista$STRATO <- lista$LABEL
-			listaord <- lista[order(lista$STRATO), ]
+			listaord <- lista[order(as.numeric(lista$STRATO)), ]
 			s <- strata.sample(listaord, c("STRATO"), strataord$SOLUZ, 
 				repl = FALSE)
 			samp <- data.frame(listaord[s, ], WEIGHTS = attr(s, "WEIGHTS"))
@@ -50,7 +51,7 @@ selectSample <- function(frame, outstrata, writeFiles = FALSE,verbatim=TRUE) {
 	if (numdom == 1) {
 		domframe <- frame
 		domstrata <- outstrata
-		strataord <- domstrata[order(domstrata$STRATO), ]
+		strataord <- domstrata[order(as.numeric(domstrata$STRATO)), ]
 		lista <- domframe
 		lista$STRATO <- lista$LABEL
 		listaord <- lista[order(lista$STRATO), ]

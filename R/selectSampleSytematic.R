@@ -13,15 +13,18 @@ selectSampleSystematic <- function(frame,
   strata.sample.systematic <- function(frame, strata, nh, sortvariable, repl) {
     selected <- NULL
     WEIGHTS <- NULL
-    for (i in (1:length(nh))) {
+    # for (i in (1:length(nh))) {
+    j <- 0
+    for (i in (c(unique(as.numeric(frame$STRATO))))) {
+      j <- j+1
       framestrat <- frame[frame[,strata] == i,]
       if (!is.null(sortvariable)) {
         framestrat <- framestrat[order(framestrat[,c(sortvariable)]),]
       }
-      step <- nrow(framestrat) / nh[i]
+      step <- nrow(framestrat) / nh[j]
       start <- sample(step,1)
       s <- round(seq(start,nrow(framestrat),step),0)
-      if (length(s) < nh[i]) {
+      if (length(s) < nh[j]) {
         s <- c(1,s)
       }
       sel <- framestrat$ID[s]
@@ -43,7 +46,7 @@ selectSampleSystematic <- function(frame,
       }
     }
     outstrata$SOLUZ <- round(outstrata$SOLUZ)  # rounding of allocation numbers
-    numdom <- length(levels(as.factor(frame$DOMAINVALUE)))
+    numdom <- length(levels(droplevels(as.factor(frame$DOMAINVALUE))))
     samptot <- NULL
     chktot <- NULL
     # begin domains cycle
@@ -51,10 +54,10 @@ selectSampleSystematic <- function(frame,
 		for (d in (1:numdom)) {
 			domframe <- frame[frame$DOMAINVALUE == d, ]
 			domstrata <- outstrata[outstrata$DOM1 == d, ]
-			strataord <- domstrata[order(domstrata$STRATO), ]
+			strataord <- domstrata[order(as.numeric(domstrata$STRATO)), ]
 			lista <- domframe
 			lista$STRATO <- lista$LABEL
-			listaord <- lista[order(lista$STRATO), ]
+			listaord <- lista[order(as.numeric(lista$STRATO)), ]
 			s <- strata.sample.systematic(listaord, c("STRATO"), strataord$SOLUZ, 
 				sortvariable, repl = FALSE)
 			samp <- data.frame(listaord[listaord$ID %in% s, ], WEIGHTS = attr(s, "WEIGHTS"))
@@ -69,7 +72,7 @@ selectSampleSystematic <- function(frame,
 	if (numdom == 1) {
 		domframe <- frame
 		domstrata <- outstrata
-		strataord <- domstrata[order(domstrata$STRATO), ]
+		strataord <- domstrata[order(as.numeric(domstrata$STRATO)), ]
 		lista <- domframe
 		lista$STRATO <- lista$LABEL
 		listaord <- lista[order(lista$STRATO), ]

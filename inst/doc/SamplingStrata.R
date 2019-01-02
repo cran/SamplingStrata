@@ -9,7 +9,6 @@ load("vignette.RData")
 
 ## ---- eval=TRUE, echo=TRUE-----------------------------------------------
 library(SamplingStrata)
-require(memoise)
 data(swissmunicipalities)
 
 ## ---- eval=TRUE, echo=TRUE-----------------------------------------------
@@ -99,11 +98,14 @@ sum(allocation)
 #  	writeFiles = FALSE,
 #  	showPlot = FALSE)
 
-## ---- eval=TRUE, echo=TRUE-----------------------------------------------
-sum(solution1$aggr_strata$SOLUZ)
-
 ## ---- out.width = "600px", echo = FALSE----------------------------------
 knitr::include_graphics("output/plotdom3.png")
+
+## ---- eval=TRUE, echo=TRUE-----------------------------------------------
+expected_CV(solution1$aggr_strata)
+
+## ---- eval=TRUE, echo=TRUE-----------------------------------------------
+swisserrors
 
 ## ---- eval=TRUE, echo=TRUE, warning=FALSE--------------------------------
 solutionKmeans1 <- KmeansSolution(swissstrata,
@@ -120,7 +122,7 @@ head(solutionKmeans1)
 #  	strata = swissstrata,
 #  	suggestions = solutionKmeans1,
 #  	parallel = TRUE,
-#  	writeFiles = FALSE,
+#  	writeFiles = TRUE,
 #  	showPlot = FALSE)
 
 ## ---- eval=TRUE, echo=TRUE, warning=FALSE--------------------------------
@@ -172,26 +174,36 @@ eval$coeff_var
 swisserrors
 
 ## ---- eval=TRUE, echo=TRUE-----------------------------------------------
+eval$rel_bias
+
+## ---- eval=TRUE, echo=TRUE-----------------------------------------------
+dom = 1
+hist(eval$est$Y1[eval$est$dom == dom], col = "grey", border = "white",
+     xlab = expression(hat(Y)[1]),
+     freq = FALSE,
+     main = paste("Variable Y1 Domain ",dom,sep=""))
+abline(v = mean(eval$est$Y1[eval$est$dom == dom]), col = "blue", lwd = 2)
+abline(v = mean(swissframe$Y1[swissframe$domainvalue==dom]), col = "red")
+legend("topright", c("distribution mean", "true value"),
+       lty = 1, col = c("blue", "red"), box.col = NA, cex = 0.8)
+
+## ---- eval=TRUE, echo=TRUE-----------------------------------------------
 data(swisserrors)
 data(swissstrata)
 data(swissframe)
 #----Selection of units to be censused from the frame
-framecens <- swissframe[ (swissframe$domainvalue == 1 |
-                          swissframe$domainvalue == 4) & 
-                         (swissframe$X2 == 1 &
-                          swissframe$X3 == 1 &
-                          swissframe$X4 == 1 &
-                          swissframe$X5 == 1 &
-                          swissframe$X6 == 1)  , ]
+ind_framecens <- which(swissframe$X1 > 12 |
+                       swissframe$X2 > 2 | 
+                       swissframe$X3 > 2 |
+                       swissframe$X4 > 2 |
+                       swissframe$X5 > 2 | 
+                       swissframe$X6 > 2 )
+framecens <- swissframe[ind_framecens,]
+nrow(framecens)
 #----Selection of units to be sampled from the frame
 # (complement to the previous)
-framesamp <- swissframe[!((swissframe$domainvalue == 1 |
-                           swissframe$domainvalue == 4) & 
-                          (swissframe$X2 == 1 &
-                           swissframe$X3 == 1 &
-                           swissframe$X4 == 1 &
-                           swissframe$X5 == 1 &
-                           swissframe$X6 == 1)) , ]
+framesamp <- swissframe[-ind_framecens,]
+nrow(framesamp)
 
 ## ---- eval=TRUE, echo=TRUE-----------------------------------------------
 # Build strata to be censused and sampled
@@ -239,6 +251,12 @@ survey <- rbind(sample,framecens)
 survey$cens <- ifelse(survey$LABEL == "999999",1,0)
 table(survey$cens)
 
+## ---- eval=TRUE, echo=TRUE-----------------------------------------------
+cens2 <- cens[,-c(14:19)]
+cens2$SOLUZ <- cens2$N
+stratatot <- rbind(solution2$aggr_strata,cens2)
+expected_CV(stratatot)
+
 ## ---- eval = T-----------------------------------------------------------
 data(nations)
 head(nations)
@@ -274,17 +292,14 @@ cv
 
 ## ---- eval = T-----------------------------------------------------------
 strata1 <- buildStrataDF(frame, progress = FALSE)
-solutionKmeans2 <- KmeansSolution(strata1,cv)
 solution3 <- optimizeStrata(cv,
                            strata1,
                            iter = 50,
                            pops = 20,
                            parallel = FALSE,
-                           suggestions = solutionKmeans2,
+                           suggestions = KmeansSolution(strata1,cv),
                            writeFiles = FALSE,
                            showPlot = FALSE)
-
-## ---- eval = T-----------------------------------------------------------
 sum(solution3$aggr_strata$SOLUZ)
 
 ## ---- eval = T-----------------------------------------------------------
@@ -314,7 +329,6 @@ strata2 <- buildStrataDF(frame, model = model, progress = FALSE)
 head(strata2)
 
 ## ---- eval = T-----------------------------------------------------------
-solutionKmeans3 = KmeansSolution(strata2,cv)
 strata2 <- buildStrataDF(frame, model = model, progress = FALSE)
 solution4 <-
   optimizeStrata(
@@ -323,12 +337,9 @@ solution4 <-
     iter = 50, 
     pops = 20, 
     parallel = FALSE,
-    suggestions = solutionKmeans3,
+    suggestions = KmeansSolution(strata2,cv),
     showPlot = FALSE,
     writeFiles = FALSE)
-
-## ---- eval = T-----------------------------------------------------------
-sum(solution4$aggr_strata$SOLUZ)
 
 ## ---- eval = T-----------------------------------------------------------
 newstrata <- updateStrata(strata2,solution4)
@@ -338,4 +349,68 @@ framenew2$Y2 <- nations$infant.mortality
 framenew2$Y3 <- nations$contraception
 results2 <- evalSolution(framenew2, solution4$aggr_strata, 50, progress = FALSE)
 results2$coeff_var
+
+## ---- eval = T-----------------------------------------------------------
+data("swissmunicipalities")
+swissmunicipalities$id <- c(1:nrow(swissmunicipalities))
+swissmunicipalities$dom <- 1
+frame <- buildFrameDF(swissmunicipalities,
+                      id = "id",
+                      domainvalue = "REG",
+                      X = c("Surfacesbois","Surfacescult"),
+                      Y = c("Pop020", "Pop2040")
+)
+# choice of units to be selected in any case (census units)
+framecens <- frame[frame$X1 > 2500 
+                   | frame$X2 > 1200,]
+# remaining units 
+framesamp <- frame[!(frame$id %in% framecens$id),]
+# precision constraints
+errors <- NULL
+errors$DOM <- "DOM1"
+errors$CV1 <- 0.1
+errors$CV2 <- 0.1
+errors <- as.data.frame(errors)
+errors <- errors[rep(row.names(errors),7),]
+errors$domainvalue <- c(1:7)
+errors
+
+## ---- eval = FALSE-------------------------------------------------------
+#  solution5 <- optimizeStrata2 (
+#    errors,
+#    framesamp = framesamp,
+#    framecens = framecens,
+#    strcens = TRUE,
+#    alldomains = FALSE,
+#    dom = 4,
+#    iter = 50,
+#    pops = 20,
+#    nStrata = 5,
+#    writeFiles = FALSE,
+#    showPlot = FALSE,
+#    parallel = FALSE
+#  )
+
+## ---- eval = T, echo=TRUE------------------------------------------------
+sum(round(solution5$aggr_strata$SOLUZ))
+expected_CV(solution5$aggr_strata)
+
+## ---- include=TRUE-------------------------------------------------------
+framenew <- solution5$framenew
+table(framenew$LABEL)
+
+## ---- eval = T,echo=TRUE-------------------------------------------------
+outstrata <- plotStrata2d(
+                  solution5$framenew, 
+                  solution5$aggr_strata,
+                  domain = 4, 
+                  vars = c("X1","X2"),
+                  labels =     c("Surfacesbois","Surfacescult")
+                  )
+
+## ---- eval = T,echo=TRUE-------------------------------------------------
+outstrata
+
+## ---- eval = T,echo=TRUE-------------------------------------------------
+samp <- selectSample(solution5$framenew,solution$aggr_strata)
 

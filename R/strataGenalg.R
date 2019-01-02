@@ -84,8 +84,10 @@ strataGenalg <- function(errors, strata, cens, strcens,
         strcor <- aggrStrata(strata, nvar, floor(indices), censiti, 
             dominio)
         dimsamp <- nrow(strcor)
-        if (strcens == TRUE) 
+        # change ------------------------------------
+        if (strcens == TRUE)
             strcor <- rbind(strcor, cens)
+        #--------------------------------------------
         dimens <- nrow(strcor)
         # cat('\nCurrent solution:',indices) cat('\nNumber of input
         # strata:',dimens) cat('\n ...sampling strata:',dimsamp)
@@ -177,8 +179,21 @@ strataGenalg <- function(errors, strata, cens, strcens,
     censiti <- 0
     strcor <- aggrStrata(strata, nvar, v, censiti, dominio)
  #   if (strcens == TRUE) strcor <- rbind(strcor, cens)
-    soluz <- bethel(strcor, errors, minnumstr, printa = FALSE, 
-        realAllocation = realAllocation)
+#-----------------------------------------------------    
+# Here the change to take into account the censused strata
+    if (strcens == TRUE) {
+      stratatot <- rbind(strcor,cens)
+      allstrata <- bethel(stratatot,errors,minnumstr,printa=FALSE,
+                          realAllocation = realAllocation)
+      #  soluz <- as.numeric(attributes(allstrata)$confr[1:nrow(strcor),3])
+      soluz <- allstrata[1:nrow(strcor)]
+    }
+    if (strcens == FALSE) {
+      soluz <- bethel(strcor, errors, minnumstr, printa = FALSE,
+                      realAllocation = realAllocation)
+    }
+#-----------------------------------------------------  
+      
 	risulta <- cbind(strcor, soluz)
 	cat("\n *** Sample cost: ", sum(soluz))
 	cat(paste("\n *** Number of strata: ", nrow(strcor)))

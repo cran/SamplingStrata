@@ -3,11 +3,12 @@
 # starting from the available sampling frame
 # taking into account anticipated variance
 # Author: Giulio Barcaroli
-# Date: May 2018
+# Date: November 2018
 # ----------------------------------------------------
 buildStrataDF <- function(dataset, 
                           model=NULL, 
-                          progress=TRUE) {
+                          progress=TRUE,
+                          verbose=TRUE) {
     # stdev1 is for sampling data
     stdev1 <- function(x, w) {
         mx <- sum(x * w)/sum(w)
@@ -19,17 +20,22 @@ buildStrataDF <- function(dataset,
         sqrt(sum(w * (x - mx)^2)/(sum(w)))
     }
     colnames(dataset) <- toupper(colnames(dataset))
+    if (is.factor(dataset$DOMAINVALUE)) levels(dataset$DOMAINVALUE) <- levels(droplevels(dataset$DOMAINVALUE))
     nvarX <- length(grep("X", names(dataset)))
     nvarY <- length(grep("Y", names(dataset)))
     if (length(grep("WEIGHT", names(dataset))) == 1) {
-        cat("\nComputations are being done on sampling data\n")
-        stdev <- "stdev1"
+        if (verbose == TRUE) {
+          cat("\nComputations are being done on sampling data\n")
+        }
+          stdev <- "stdev1"
     }
     if (length(grep("WEIGHT", names(dataset))) == 0) {
         dataset$WEIGHT <- rep(1, nrow(dataset))
         stdev <- "stdev2"
-        cat("\nComputations are being done on population data\n")
-    }
+        if (verbose == TRUE) {
+          cat("\nComputations are being done on population data\n")
+        }
+      }
     #---------------------------------------------------------
     # Check the validity of the model
     if (!is.null(model)) {
@@ -174,22 +180,29 @@ buildStrataDF <- function(dataset,
     if (progress == TRUE) close(pb)
     colnames(stratatot) <- toupper(colnames(stratatot))
     stratatot$DOM1 <- as.factor(stratatot$DOM1)
-    write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t",
-                dec = ".", row.names = FALSE)
-    stratatot <- read.delim("strata.txt")
-    unlink("strata.txt")
+    # write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t",
+    #             dec = ".", row.names = FALSE)
+    # stratatot <- read.delim("strata.txt")
+    # unlink("strata.txt")
     options("scipen"=100)
-    for (i in (1:nvarY)) {
+    indx <- sapply(stratatot, is.factor)
+    stratatot[indx] <- lapply(stratatot[indx], function(x) as.numeric(as.character(x)))
+      for (j in (1:nvarX)) {
+        stmt <- paste("stratatot$X",j," <- as.numeric(stratatot$X",j,")",sep="")
+        eval(parse(text=stmt))
+      }
       for (j in (1:nrow(stratatot))) {
         stmt <- paste("stratatot$M",i,"[j] <- ifelse(stratatot$M",i,"[j] == 0,0.000000000000001,stratatot$M",i,"[j])",sep="")
         eval(parse(text=stmt))
       }
-    }
+    # }
     # if (writeFiles == TRUE )
     # write.table(stratatot, "strata.txt", quote = FALSE, sep = "\t", 
     #     dec = ".", row.names = FALSE)
     # stratatot <- read.delim("strata.txt")
-    cat("\nNumber of strata: ",nrow(stratatot))
-    cat("\n... of which with only one unit: ",sum(stratatot$N==1))
+    if (verbose == TRUE) {
+      cat("\nNumber of strata: ",nrow(stratatot))
+      cat("\n... of which with only one unit: ",sum(stratatot$N==1))
+    }
     return(stratatot)
 }
