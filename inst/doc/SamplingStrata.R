@@ -129,11 +129,11 @@ head(solutionKmeans1)
 sum(ceiling(solution_with_kmeans$aggr_strata$SOLUZ))
 
 ## ---- eval=TRUE, echo=TRUE-----------------------------------------------
-adjustedStrata <- adjustSize(size=150,strata=solution1$aggr_strata,cens=NULL)
+adjustedStrata <- adjustSize(size=280,strata=solution1$aggr_strata,cens=NULL)
 sum(adjustedStrata$SOLUZ)
 
 ## ---- eval=TRUE, echo=TRUE-----------------------------------------------
-adjustedStrata <- adjustSize(size=250,strata=solution1$aggr_strata,cens=NULL)
+adjustedStrata <- adjustSize(size=400,strata=solution1$aggr_strata,cens=NULL)
 sum(adjustedStrata$SOLUZ)
 
 ## ---- eval=TRUE, echo=TRUE-----------------------------------------------
@@ -400,6 +400,10 @@ framenew <- solution5$framenew
 table(framenew$LABEL)
 
 ## ---- eval = T,echo=TRUE-------------------------------------------------
+strataStructure <- summaryStrata(solution5$framenew,solution5$aggr_strata,progress=FALSE)
+strataStructure
+
+## ---- eval = T,echo=TRUE-------------------------------------------------
 outstrata <- plotStrata2d(
                   solution5$framenew, 
                   solution5$aggr_strata,
@@ -412,5 +416,5 @@ outstrata <- plotStrata2d(
 outstrata
 
 ## ---- eval = T,echo=TRUE-------------------------------------------------
-samp <- selectSample(solution5$framenew,solution$aggr_strata)
+samp <- selectSample(solution5$framenew,solution5$aggr_strata)
 
