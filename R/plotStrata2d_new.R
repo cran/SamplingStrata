@@ -48,17 +48,17 @@ plotStrata2d <- function (x,
   cuts <- list(x1_max,x2_max)
   m <- length(cuts[[1]])
 
-  stringa <- paste("x1.min <- min(x$",vars[1],", na.rm = TRUE)",sep="")
+  stringa <- paste("x1.min <- round(min(x$",vars[1],", na.rm = TRUE),2)",sep="")
   eval(parse(text=stringa)) 
-  stringa <- paste("x1.max <- max(x$",vars[1],", na.rm = TRUE)",sep="")
+  stringa <- paste("x1.max <- round(max(x$",vars[1],", na.rm = TRUE),2)",sep="")
   eval(parse(text=stringa)) 
-  stringa <- paste("x2.min <- min(x$",vars[2],", na.rm = TRUE)",sep="")
+  stringa <- paste("x2.min <- round(min(x$",vars[2],", na.rm = TRUE),2)",sep="")
   eval(parse(text=stringa)) 
-  stringa <- paste("x2.max <- max(x$",vars[2],", na.rm = TRUE)",sep="")
+  stringa <- paste("x2.max <- round(max(x$",vars[2],", na.rm = TRUE),2)",sep="")
   eval(parse(text=stringa)) 
   cols <- rainbow(m + 1, alpha = 0.3)
-  xcuts <- cuts[[1]]
-  ycuts <- cuts[[2]]
+  xcuts <- round(cuts[[1]],2)
+  ycuts <- round(cuts[[2]],2)
   xcuts <- c(ifelse(x1.min > 0, 0, x1.min), xcuts, x1.max)
   ycuts <- c(ifelse(x2.min > 0, 0, x1.min), ycuts, x2.max)
   id <- c()
@@ -89,7 +89,10 @@ plotStrata2d <- function (x,
   stringa <- paste("plot(x$",vars[1],",x$",vars[2],",type='n',cex=0.01,xlab=labels[1],ylab=labels[2])",sep="")
   eval(parse(text=stringa)) 
   # plot(x$1,x$2,type="n",cex=0.01,xlab=labels[1],ylab=labels[2])
-  cl <- c("yellow","red","salmon","green","orange")
+  cl <- c("orange","coral","sandybrown","cyan2","darkturquoise",
+          "green","yellow","orange","coral","sandybrown","cyan2","darkturquoise",
+          "green","yellow","orange","coral","sandybrown","cyan2","darkturquoise",
+          "green","yellow")
   # cl <- gray(c(1:(nstrata+1)/(nstrata+1),alpha=NULL))
   for (i in (1:nstrata)) {
     j = i - 1

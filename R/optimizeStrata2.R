@@ -6,7 +6,7 @@ optimizeStrata2 <-
             model = NULL, 
             alldomains = TRUE, 
             dom = NULL, 
-            nStrata = 5, 
+            nStrata = c(5), 
             minnumstr = 2, 
             iter = 50, 
             pops = 20, 
@@ -19,7 +19,7 @@ optimizeStrata2 <-
             writeFiles = FALSE, 
             showPlot = TRUE, 
             parallel = TRUE, 
-            cores) 
+            cores = NA) 
   { 
     if (strcens == FALSE) {
       cens=NULL
@@ -28,6 +28,8 @@ optimizeStrata2 <-
     frame <- framesamp
     if (alldomains == TRUE) dom <- NULL
     colnames(frame) <- toupper(colnames(frame))
+    ndom <- length(levels(as.factor(frame$DOMAINVALUE)))
+    nvarX <- length(grep("X", names(frame)))
     if (alldomains == FALSE) {
       frame <- frame[frame$DOMAINVALUE == dom,]
     }
@@ -49,14 +51,14 @@ optimizeStrata2 <-
       if (nrow(framecens) > 0) {
         colnames(framecens) <- toupper(colnames(framecens))
         framecensold <- framecens
-        framecens$X1 <- nStrata + 1
+        framecens$X1 <- max(nStrata) + 1
         nvarX <- length(grep("X", names(framecens)))
         if (nvarX > 1) {
           for (i in (2:nvarX)) {
             eval(parse(text=paste("framecens$X",i," <- NULL",sep="")))
           }
-        }  
-        cens <- buildStrataDF2(framecens,progress=FALSE,verbose=FALSE)
+        }
+        cens <- buildStrataDF(framecens,progress=FALSE,verbose=FALSE)
         cens$CENS <- 1
         censtot <- cens
       }
@@ -70,18 +72,18 @@ optimizeStrata2 <-
         dir.create(direnew)
       #setwd(direnew)
     }
-    
-    if(parallel == FALSE & !missing(cores)){
+    if (parallel == TRUE & ndom == 1) parallel <- FALSE
+    if(parallel == FALSE & !missing(cores) & !is.na(cores)) {
       cat("Sequential optimization as parallel = FALSE, defaulting number of cores = 1")
       cores <- 1
       Sys.sleep(0.314)
     }
-    if(alldomains == FALSE & (parallel == TRUE | !missing(cores))){
+    if(alldomains == FALSE & (parallel == TRUE | !missing(cores) | !is.na(cores))){
       cat("Sequential optimization as parallel = FALSE, defaulting number of cores = 1")
       cores <- 1
       Sys.sleep(0.314)
     }
-    ncuts <- nStrata - 1
+    # ncuts <- nStrata - 1
     # if (is.na(initialStrata)) 
     #   initialStrata <- as.numeric(table(strata$DOM1))
     # nstrata = initialStrata
@@ -91,8 +93,15 @@ optimizeStrata2 <-
     erro <- split(errors, list(errors$DOMAINVALUE))
     # stcamp <- split(strata, list(strata$DOM1))
     stcamp <- split(frame, list(frame$DOMAINVALUE))
-    if (!is.null(suggestions)) 
+    if (!is.null(suggestions)) {
+      for (i in (1:ndom)) {
+        # nStrataSuggested <- length(unique(suggestions$suggestions[suggestions$domainvalue==i]))
+        # if (nStrataSuggested != nStrata[i]) stop("Number of strata in 'suggestions' is different from 'nStrata' value in domain ",i)
+        nvalues <- nrow(suggestions[suggestions$domainvalue==i,])
+        if (nvalues != nvarX*(nStrata[i]-1)) stop("Number of values in suggestions not compatible with nStrata")
+      }
       suggestdom <- split(suggestions, list(suggestions$domainvalue))
+    }
     if (strcens == TRUE & !is.null(cens) > 0) {
       colnames(cens) <- toupper(colnames(cens))
       # k <- length(levels(as.factor(strata$DOM1)))
@@ -103,16 +112,16 @@ optimizeStrata2 <-
       }
     }
     # ndom <- length(levels(as.factor(strata$DOM1)))
-    ndom <- length(levels(as.factor(frame$DOMAINVALUE)))
+    # ndom <- length(levels(as.factor(frame$DOMAINVALUE)))
     if (alldomains == TRUE) {
-      # if (ndom > length(nstrata)) 
-      #   stop("'initialStrata' vector lenght (=", length(nstrata), 
-      #        ") \nis not compatible with number of domains (=", 
-      #        ndom, ")\nSet initialStrata with a number of elements equal to the number of domains")
+      if (ndom > length(nStrata))
+        stop("'Number of strata (nStrata) ' vector lenght (=", length(nStrata),
+             ") \nis not compatible with number of domains (=",
+             ndom, ")\nSet nStrata with a number of elements equal to the number of domains")
       vettsol <- NULL
       outstrata <- NULL
       if (parallel) {
-        if (missing(cores)) {
+        if (missing(cores) | is.na(cores)) {
           cores <- parallel::detectCores() - 1
           if (ndom < cores) 
             cores <- ndom
@@ -151,12 +160,14 @@ optimizeStrata2 <-
                                   flagcens = FALSE
                                 }
                                 if (!is.null(suggestions) & alldomains == TRUE) {
-                                  suggest <- matrix(0, nrow = 1, ncol = nrow(stcamp[[i]]))
-                                  suggest[1, ] <- suggestdom[[i]]$suggestions
+                                  suggest <- matrix(0, nrow = 2, ncol = (nStrata[i]-1)*nvarX)
+                                  suggest[1, ] <- suggestdom[[i]]$suggestions1
+                                  suggest[2, ] <- suggestdom[[i]]$suggestions2
                                 }
                                 if (!is.null(suggestions) & alldomains == FALSE) {
-                                  suggest <- matrix(0, nrow = 1, ncol = nrow(stcamp[[i]]))
-                                  suggest[1, ] <- suggestions$suggestions
+                                  suggest <- matrix(0, nrow = 2, ncol = (nStrata[i]-1)*nvarX)
+                                  suggest[1, ] <- suggestdom[[i]]$suggestions1
+                                  suggest[2, ] <- suggestdom[[i]]$suggestions2
                                 }
                                 if (is.null(suggestions)) {
                                   suggest <- NULL
@@ -167,7 +178,7 @@ optimizeStrata2 <-
                                                          cens = cens, 
                                                          strcens = flagcens, 
                                                          model,
-                                                         ncuts = (nStrata - 1),
+                                                         ncuts = (nStrata[i] - 1),
                                                          dominio = i, 
                                                          minnumstr, 
                                                          iter, 
@@ -248,12 +259,14 @@ optimizeStrata2 <-
             flagcens = FALSE
           }
           if (!is.null(suggestions) & alldomains == TRUE) {
-            suggest <- matrix(0, nrow = 1, ncol = nrow(stcamp[[i]]))
-            suggest[1, ] <- suggestdom[[i]]$suggestions
+            suggest <- matrix(0, nrow = 2, ncol = (nStrata[i]-1)*nvarX)
+            suggest[1, ] <- suggestdom[[i]]$suggestions1
+            suggest[2, ] <- suggestdom[[i]]$suggestions2
           }
           if (!is.null(suggestions) & alldomains == FALSE) {
-            suggest <- matrix(0, nrow = 1, ncol = nrow(stcamp[[i]]))
-            suggest[1, ] <- suggestions$suggestions
+            suggest <- matrix(0, nrow = 2, ncol = (nStrata[i]-1)*nvarX)
+            suggest[1, ] <- suggestions$suggestions1
+            suggest[2, ] <- suggestions$suggestions2
           }
           if (is.null(suggestions)) {
             suggest <- NULL
@@ -264,7 +277,7 @@ optimizeStrata2 <-
                                    cens = cens, 
                                    strcens = flagcens, 
                                    model,
-                                   ncuts = (nStrata - 1),
+                                   ncuts = (nStrata[i] - 1),
                                    dominio = i, 
                                    minnumstr, 
                                    iter, 
@@ -326,11 +339,11 @@ optimizeStrata2 <-
         }
       }
       if (!is.null(suggestions) & alldomains == TRUE) {
-        suggest <- matrix(0, nrow = 1, ncol = nrow(stcamp[[i]]))
+        suggest <- matrix(0, nrow = 2, ncol = (nStrata[i]-1)*nvarX)
         suggest[1, ] <- suggestdom[[i]]$suggestions
       }
       if (!is.null(suggestions) & alldomains == FALSE) {
-        suggest <- matrix(0, nrow = 1, ncol = nrow(stcamp[[i]]))
+        suggest <- matrix(0, nrow = 2, ncol = (nStrata[i]-1)*nvarX)
         suggest[1, ] <- suggestions$suggestions
       }
       if (is.null(suggestions)) {
@@ -388,17 +401,20 @@ optimizeStrata2 <-
     framenew <- merge(frame,vettsoldf,by=c("ID"))
     # if (strcens == TRUE & !is.null(censi)) {
     if (strcens == TRUE) {
+      framecens$STRATO <- nStrata[i] + 1
+      framecens$LABEL <- nStrata[i] + 1
       if (alldomains == FALSE) {
         # colnames(framecens) <- toupper(colnames(framecens))
         # colnames(framecensold) <- toupper(colnames(framecensold))
         framecens <- framecens[framecens$DOMAINVALUE == dom,]
         framecensold <- framecensold[framecensold$DOMAINVALUE == dom,]
+        framecens$STRATO <- nStrata + 1
+        framecens$LABEL <- nStrata + 1
       }
       for (i in (1:nvarX)) {
         eval(parse(text=paste("framecens$X",i," <- framecensold$X",i,sep="")))
       }
-      framecens$STRATO <- nStrata + 1
-      framecens$LABEL <- nStrata + 1
+
       colnames(framecens) <- toupper(colnames(framecens))
       framenew <- rbind(framenew,framecens)
       censtot$SOLUZ <- censtot$N
@@ -412,7 +428,7 @@ optimizeStrata2 <-
     #   eval(parse(text=paste("frame$X",j," <- NULL",sep="")))
     # }
     # dataset$X1 <- framenew$LABEL
-    # outstrata2 <- buildStrataDF2(dataset,progress=FALSE,verbose=FALSE)
+    # outstrata2 <- buildStrataDF(dataset,progress=FALSE,verbose=FALSE)
     # outstrata2$SOLUZ <- outstrata$SOLUZ
     #-----------------------------------------    
     solution <- list(indices = vettsol, aggr_strata = outstrata, framenew = framenew)

@@ -38,7 +38,7 @@ evaluate <- function(dataset,
   for(j in 1:nX){
       ini=(j-1)*(NROW(v)/nX)+1
       fin=j*(NROW(v)/nX)
-      eval(parse(text=paste("v",j,"<-string[ini:fin]*max(frame$ZZ",i,")",sep="")))
+      eval(parse(text=paste("v",j,"<-string[ini:fin]*max(frame$ZZ",j,")",sep="")))
       eval(parse(text=paste("x",j,"_cuts<-as.data.frame(v",j,"[order(v",j,")])",sep="")))
       eval(parse(text=paste("x",j,"_cuts<-as.data.frame(rbind(min(frame$ZZ",j,")",",x",j,"_cuts,max(frame$ZZ",j,")))",sep="")))
       eval(parse(text=paste("x",j,"_cuts$lim<-x",j,"_cuts$`v",j,"[order(v",j,")]`",sep="")))
@@ -60,7 +60,7 @@ evaluate <- function(dataset,
     frame$X1 <- as.numeric(frame$X1)
   }
   frame$X1 <- as.numeric(frame$X1)
-  strata <- buildStrataDF2(frame,model=model,progress = FALSE,verbose=FALSE)
+  strata <- buildStrataDF(frame,model=model,progress = FALSE,verbose=FALSE)
   if (strcens == TRUE) {
     stratatot <- rbind(strata,cens)
     soluz <- bethel(stratatot, 
@@ -128,7 +128,7 @@ v<-string
 for(j in 1:nX){
   ini=(j-1)*(NROW(v)/nX)+1
   fin=j*(NROW(v)/nX)
-  eval(parse(text=paste("v",j,"<-string[ini:fin]*max(frame$ZZ",i,")",sep="")))
+  eval(parse(text=paste("v",j,"<-string[ini:fin]*max(frame$ZZ",j,")",sep="")))
   eval(parse(text=paste("x",j,"_cuts<-as.data.frame(v",j,"[order(v",j,")])",sep="")))
   eval(parse(text=paste("x",j,"_cuts<-as.data.frame(rbind(min(frame$ZZ",j,")",",x",j,"_cuts,max(frame$ZZ",j,")))",sep="")))
   eval(parse(text=paste("x",j,"_cuts$lim<-x",j,"_cuts$`v",j,"[order(v",j,")]`",sep="")))
@@ -150,7 +150,7 @@ if (max(levels(frame$X1)) > length(levels(frame$X1))) {
   frame$X1 <- as.numeric(frame$X1)
 }
 frame$X1 <- as.numeric(frame$X1)
-strata <- buildStrataDF2(frame,model=model,progress = FALSE,verbose=FALSE)
+strata <- buildStrataDF(frame,model=model,progress = FALSE,verbose=FALSE)
 if (strcens == TRUE) {
   stratatot <- rbind(strata,cens)
   soluz <- bethel(stratatot, 

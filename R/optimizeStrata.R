@@ -3,7 +3,7 @@ optimizeStrata <-
             dom = NULL, initialStrata = NA, addStrataFactor = 0, minnumstr = 2, 
             iter = 50, pops = 20, mut_chance = NA, elitism_rate = 0.2, 
             highvalue = 1e+08, suggestions = NULL, realAllocation = TRUE, 
-            writeFiles = FALSE, showPlot = TRUE, parallel = TRUE, cores) 
+            writeFiles = FALSE, showPlot = TRUE, parallel = TRUE, cores = NA) 
   {
     if (writeFiles == TRUE) {
       dire <- getwd()
@@ -15,13 +15,13 @@ optimizeStrata <-
       #setwd(direnew)
     }
     
-    if(parallel == FALSE & !missing(cores)){
+    if(parallel == FALSE & !missing(cores) | !is.na(cores)){
       cat("Sequential optimization as parallel = FALSE, defaulting number of cores = 1")
       cores <- 1
       Sys.sleep(0.314)
     }
       
-    if (is.na(initialStrata)) 
+    if (is.na(initialStrata[1])) 
       initialStrata <- as.numeric(table(strata$DOM1))
     nstrata = initialStrata
     colnames(errors) <- toupper(colnames(errors))
@@ -47,8 +47,9 @@ optimizeStrata <-
              ndom, ")\nSet initialStrata with a number of elements equal to the number of domains")
       vettsol <- NULL
       outstrata <- NULL
+      if (parallel == TRUE & ndom == 1) parallel <- FALSE
       if (parallel) {
-        if (missing(cores)) {
+        if (missing(cores) | is.na(cores)) {
           cores <- parallel::detectCores() - 1
           if (ndom < cores) 
             cores <- ndom
