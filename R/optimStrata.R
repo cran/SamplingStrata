@@ -87,6 +87,25 @@ optimStrata <- function(method=c("atomic","continuous","spatial"),
 	    )	
     newstrata <- updateStrata(strata, solut)
     framenew <- updateFrame(frame=framesamp,newstrata=newstrata)
+    if (!is.null(framecens)) {
+      colnames(framecens) <- toupper(colnames(framecens))
+      framenew$STRATUM <- as.character(framenew$STRATUM)
+      framecens$LABEL <- 99999
+      framecens$STRATUM <- "99999"
+      framenew <- rbind(framenew,framecens)
+      framenew$STRATUM <- as.numeric(framenew$LABEL)
+      nvarX <- length(grep("X",colnames(framecens)))
+      for (i in c(1:nvarX)) {
+        st <- paste("framecens$X",i," <- NULL",sep="")
+        eval(parse(text=st))
+      }
+      framecens$X1 <- 99999
+      cens <- buildStrataDF(framecens)
+      cens$X1 <- NULL
+      cens$SOLUZ <- cens$N
+      cens$CENS <- 1
+      solut$aggr_strata <- rbind(solut$aggr_strata,cens)
+    }
     solution <- list(indices = solut$indices, framenew=framenew,aggr_strata=solut$aggr_strata)
   }
   # Method 'continuous'
@@ -100,8 +119,8 @@ optimStrata <- function(method=c("atomic","continuous","spatial"),
     checkInput(errors, sampframe=framesamp)
     if (!is.null(framecens)) checkInput(errors, sampframe=framecens) 
     if (!is.null(framecens)) strcens <- TRUE
-	  if (!is.na(fitting)) stop("Fitting value(s) not required with this method")
-	  if (!is.na(range)) stop("Range value(s) not required with this method")
+	  if (!is.na(fitting[1])) stop("Fitting value(s) not required with this method")
+	  if (!is.na(range[1])) stop("Range value(s) not required with this method")
 	  if (!is.na(kappa)) stop("Kappa value not required with this method")
 	  solution <- optimizeStrata2(
       errors = errors, 
@@ -129,10 +148,10 @@ optimStrata <- function(method=c("atomic","continuous","spatial"),
   # Method 'spatial'
   if (method=="spatial") {
     checkInput(errors, sampframe=framesamp)
-    if (!is.null(framecens)) checkInput(errors, sampframe=framecens)
+    # if (!is.null(framecens)) checkInput(errors, sampframe=framecens)
 	  nvarY <- length(grep("Y", names(framesamp)))
-	  if (is.na(fitting)) stop("Fitting values of spatial models must be given")
-	  if (is.na(range)) stop("Range values of spatial models must be given")
+	  if (is.na(fitting[1])) stop("Fitting values of spatial models must be given")
+	  if (is.na(range[1])) stop("Range values of spatial models must be given")
 	  if (is.na(kappa)) kappa <- 3
 	  if (nvarY != length(as.numeric(fitting))) stop("Fitting values must be equal to the number of Y's")
 	  if (nvarY != length(as.numeric(range))) stop("Range values must be equal to the number of Y's")
@@ -145,6 +164,7 @@ optimStrata <- function(method=c("atomic","continuous","spatial"),
 	  
 	  if (!is.null(framecens)) {
 	    checkInput(errors, sampframe=framecens)
+	    strcens <- TRUE
 	    nvars <- length(grep("var", names(framecens)))
 	    if (nvarY != nvars) stop("Variances in the 'framecens' dataframe must be given (one for each Y)")
 	    for (i in (1:nvars)) {
