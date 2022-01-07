@@ -9,6 +9,7 @@ in 2003.
 \format{
   A data frame with 2896 observations on the following 22 variables:
   \describe{
+	\item{id}{Municipality unique identifier.}
     \item{CT}{Swiss canton.}
     \item{REG}{Swiss region.}
     \item{COM}{municipality number.}
@@ -31,6 +32,8 @@ in 2003.
     \item{H00P03}{number of households with 3 persons.}
     \item{H00P04}{number of households with 4 persons.}
     \item{POPTOT}{total population.}
+    \item{lat}{latitude.}
+    \item{long}{longitude.}
   }
 }
 \source{Swiss Federal Statistical Office.

@@ -238,14 +238,14 @@ solution1 <- optimStrata(method = "atomic",
                         framesamp = frame1,
                         iter = 50,
                         pops = 10)
-Number of strata:  350
-... of which with only one unit:  130
- *** Starting parallel optimization for  3  domains using  3  cores
-  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=07s  
-
- *** Sample size :  306
- *** Number of strata :  22
----------------------------
+# Number of strata:  350
+# ... of which with only one unit:  130
+#  *** Starting parallel optimization for  3  domains using  3  cores
+#   |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=07s  
+# 
+#  *** Sample size :  306
+#  *** Number of strata :  22
+# ---------------------------
 ```
 
 ![](SamplingStrata_figures/optim1-1.png)

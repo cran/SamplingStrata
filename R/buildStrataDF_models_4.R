@@ -105,10 +105,12 @@ buildStrataDF <- function(dataset,
     # dataset$DOMAINVALUE <- as.numeric(dataset$DOMAINVALUE)
     # for (d in unique(dataset$DOMAINVALUE)) {
     # dataset$DOMAINVALUE <- as.numeric(dataset$DOMAINVALUE)
+    doms <- 0
     for (d in (levels(dataset$DOMAINVALUE))) {
+      doms <- doms + 1
       if (progress == TRUE) Sys.sleep(0.1)
       # update progress bar
-      if (progress == TRUE) setTxtProgressBar(pb, d)
+      if (progress == TRUE) setTxtProgressBar(pb, doms)
       # dom <- unique(dataset$DOMAINVALUE)[d]
 		  # dom <- levels(as.factor(dataset$DOMAINVALUE))[d]
       dom <- d
@@ -334,5 +336,10 @@ buildStrataDF <- function(dataset,
       cat("\nNumber of strata: ",nrow(stratatot))
       cat("\n... of which with only one unit: ",sum(stratatot$N==1))
     }
+    # Eliminate rare cases
+    # for (i in (1:nvarY)) {
+    #   st <- paste0("stratatot$S",i," <- ifelse(stratatot$M",i," < 0.01,0,stratatot$S",i,")")
+    #   eval(parse(text=st))
+    # }
     return(stratatot)
 }

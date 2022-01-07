@@ -46,7 +46,7 @@ KmeansSolution <- function(strata,
       for (i in min:max) {
         stmt3 <- paste("],",i,")$cluster",sep="")
         stmt <- paste(stmt1,stmt2,stmt3,sep="")
-        eval(parse(text=stmt))
+        solution <- tryCatch(eval(parse(text = stmt)))
         aggr <- aggrStrata(strata=stratacorr,
                            nvar=nvariables,
                            censiti=0,
@@ -66,13 +66,18 @@ KmeansSolution <- function(strata,
   }
   solutionKmean <- as.data.frame(cbind(suggestions,domainvalue),stringsAsFactors = TRUE)
   solutionKmean$domainvalue <- as.integer(solutionKmean$domainvalue)
-  cat("\n-----------------")
-  cat("\n Kmeans solution ")
-  cat("\n-----------------")
-  for (i in c(1:ndom)) {
-    cat("\n *** Domain: ",i," ***")
-    cat("\n Number of strata: ",best_num_strata[i])
-    cat("\n Sample size     : ",best[i])
+  totsize <- 0
+  cat("\n-------------------")
+  cat("\n  Kmeans solution ")
+  cat("\n-------------------")
+  for (i in (unique(strata$DOM1))) {
+    cat("\n *** Domain: ", i, " ***")
+    cat("\n Number of strata: ", best_num_strata[i])
+    cat("\n Sample size     : ", best[i])
+    totsize <- totsize + best[i]
   }
+  cat("\n-------------------")
+  cat("\n Total size: ",totsize)
+  cat("\n-------------------")
   solutionKmean
 }
