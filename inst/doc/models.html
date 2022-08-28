@@ -12,11 +12,39 @@
 
 <meta name="author" content="Marco Ballin, Giulio Barcaroli" />
 
-<meta name="date" content="2022-01-06" />
+<meta name="date" content="2022-08-28" />
 
 <title>Use of models in SamplingStrata</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -26,6 +54,7 @@
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -40,7 +69,6 @@
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
@@ -126,30 +154,188 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">
-/* for pandoc --citeproc since 2.11 */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
 
-<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -163,7 +349,7 @@ div.csl-indent {
 
 <h1 class="title toc-ignore">Use of models in SamplingStrata</h1>
 <h4 class="author">Marco Ballin, Giulio Barcaroli</h4>
-<h4 class="date">2022-01-06</h4>
+<h4 class="date">2022-08-28</h4>
 
 
 
@@ -257,11 +443,11 @@ In order to take into account this problem, and to limit the risk of overestimat
 <div id="example" class="section level1">
 <h1>Example</h1>
 <p>Consider the following example, based on the dataset <em>swissmunicipalities</em> available in the package.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SamplingStrata)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;swissmunicipalities&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>swissmunicipalities<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(swissmunicipalities))</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>swissmunicipalities<span class="sc">$</span>dom <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(swissmunicipalities[,<span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">9</span>,<span class="dv">22</span>)])</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(SamplingStrata)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">data</span>(<span class="st">&quot;swissmunicipalities&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>swissmunicipalities<span class="op">$</span>id &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(swissmunicipalities))</span>
+<span id="cb1-4"><a href="#cb1-4"></a>swissmunicipalities<span class="op">$</span>dom &lt;-<span class="st"> </span><span class="dv">1</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">head</span>(swissmunicipalities[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">9</span>,<span class="dv">22</span>)])</span></code></pre></div>
 <pre><code>##   REG  COM        Nom HApoly Alp H00P04
 ## 1   4  261     Zurich   8781   0  19468
 ## 2   1 6621     Geneve   1593   0   9952
@@ -270,12 +456,12 @@ In order to take into account this problem, and to limit the risk of overestimat
 ## 5   1 5586   Lausanne   4136   0   7416
 ## 6   4  230 Winterthur   6787   0   6758</code></pre>
 <p>Let us assume that in the sampling frame only variables <em>total population</em> (<em>POPTOT</em>) and <em>total area</em> (<em>HApoly</em>) is available for all municipalities, while <em>buildings area</em> (<em>Airbat</em>) and <em>woods area</em> (<em>Surfacesbois</em>) are available only on a sample of 500 municipalities.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>swiss_sample <span class="ot">&lt;-</span> swissmunicipalities[<span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(swissmunicipalities)),<span class="dv">500</span>),]</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>swiss_sample &lt;-<span class="st"> </span>swissmunicipalities[<span class="kw">sample</span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(swissmunicipalities)),<span class="dv">500</span>),]</span></code></pre></div>
 <p>In this subset we can fit models between POPTOT and the two variables that we assume are the target of our survey.</p>
 <p>One model for <em>buildings area</em> and <em>total population</em>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mod_Airbat_POPTOT <span class="ot">&lt;-</span> <span class="fu">lm</span>(swiss_sample<span class="sc">$</span>Airbat <span class="sc">~</span> swiss_sample<span class="sc">$</span>POPTOT)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_Airbat_POPTOT)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>mod_Airbat_POPTOT &lt;-<span class="st"> </span><span class="kw">lm</span>(swiss_sample<span class="op">$</span>Airbat <span class="op">~</span><span class="st"> </span>swiss_sample<span class="op">$</span>POPTOT)</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">summary</span>(mod_Airbat_POPTOT)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = swiss_sample$Airbat ~ swiss_sample$POPTOT)
@@ -295,8 +481,8 @@ In order to take into account this problem, and to limit the risk of overestimat
 ## Multiple R-squared:  0.778,  Adjusted R-squared:  0.7776 
 ## F-statistic:  1745 on 1 and 498 DF,  p-value: &lt; 0.00000000000000022</code></pre>
 <p>and one model for <em>woods area</em> and <em>total area</em>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mod_Surfacesbois_HApoly <span class="ot">&lt;-</span> <span class="fu">lm</span>(swiss_sample<span class="sc">$</span>Surfacesbois <span class="sc">~</span> swiss_sample<span class="sc">$</span>HApoly)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_Surfacesbois_HApoly)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod_Surfacesbois_HApoly &lt;-<span class="st"> </span><span class="kw">lm</span>(swiss_sample<span class="op">$</span>Surfacesbois <span class="op">~</span><span class="st"> </span>swiss_sample<span class="op">$</span>HApoly)</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="kw">summary</span>(mod_Surfacesbois_HApoly)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = swiss_sample$Surfacesbois ~ swiss_sample$HApoly)
@@ -316,141 +502,141 @@ In order to take into account this problem, and to limit the risk of overestimat
 ## Multiple R-squared:  0.5929, Adjusted R-squared:  0.5921 
 ## F-statistic: 725.4 on 1 and 498 DF,  p-value: &lt; 0.00000000000000022</code></pre>
 <p>We calculate the heteroscedasticity index and associated prediction standard error for both models:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Airbat <span class="ot">&lt;-</span> <span class="fu">computeGamma</span>(mod_Airbat_POPTOT<span class="sc">$</span>residuals,</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>             swiss_sample<span class="sc">$</span>POPTOT,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">nbins =</span> <span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>Airbat &lt;-<span class="st"> </span><span class="kw">computeGamma</span>(mod_Airbat_POPTOT<span class="op">$</span>residuals,</span>
+<span id="cb8-2"><a href="#cb8-2"></a>             swiss_sample<span class="op">$</span>POPTOT,</span>
+<span id="cb8-3"><a href="#cb8-3"></a>             <span class="dt">nbins =</span> <span class="dv">10</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Airbat</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>Airbat</span></code></pre></div>
 <pre><code>##     gamma     sigma  r.square 
 ## 0.6419641 0.1220129 0.9535845</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Surfacesbois <span class="ot">&lt;-</span> <span class="fu">computeGamma</span>(mod_Surfacesbois_HApoly<span class="sc">$</span>residuals,</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>             swiss_sample<span class="sc">$</span>HApoly,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">nbins =</span> <span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>Surfacesbois &lt;-<span class="st"> </span><span class="kw">computeGamma</span>(mod_Surfacesbois_HApoly<span class="op">$</span>residuals,</span>
+<span id="cb11-2"><a href="#cb11-2"></a>             swiss_sample<span class="op">$</span>HApoly,</span>
+<span id="cb11-3"><a href="#cb11-3"></a>             <span class="dt">nbins =</span> <span class="dv">10</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Surfacesbois</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>Surfacesbois</span></code></pre></div>
 <pre><code>##     gamma     sigma  r.square 
 ## 0.8911053 0.3582789 0.9931305</code></pre>
 <p>We now proceed in building the <em>model</em> dataframe using the above models:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>beta[<span class="dv">1</span>] <span class="ot">&lt;-</span> mod_Airbat_POPTOT<span class="sc">$</span>coefficients[<span class="dv">2</span>]</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>sig2[<span class="dv">1</span>] <span class="ot">&lt;-</span> Airbat[<span class="dv">2</span>]<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>type[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;linear&quot;</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>gamma[<span class="dv">1</span>] <span class="ot">&lt;-</span> Airbat[<span class="dv">1</span>]</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>beta[<span class="dv">2</span>] <span class="ot">&lt;-</span> mod_Surfacesbois_HApoly<span class="sc">$</span>coefficients[<span class="dv">2</span>]</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>sig2[<span class="dv">2</span>] <span class="ot">&lt;-</span> Surfacesbois[<span class="dv">2</span>]<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>type[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;linear&quot;</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>gamma[<span class="dv">2</span>] <span class="ot">&lt;-</span> Surfacesbois[<span class="dv">1</span>] </span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(model)</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>model</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>model &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>model<span class="op">$</span>beta[<span class="dv">1</span>] &lt;-<span class="st"> </span>mod_Airbat_POPTOT<span class="op">$</span>coefficients[<span class="dv">2</span>]</span>
+<span id="cb14-3"><a href="#cb14-3"></a>model<span class="op">$</span>sig2[<span class="dv">1</span>] &lt;-<span class="st"> </span>Airbat[<span class="dv">2</span>]<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>model<span class="op">$</span>type[<span class="dv">1</span>] &lt;-<span class="st"> &quot;linear&quot;</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>model<span class="op">$</span>gamma[<span class="dv">1</span>] &lt;-<span class="st"> </span>Airbat[<span class="dv">1</span>]</span>
+<span id="cb14-6"><a href="#cb14-6"></a>model<span class="op">$</span>beta[<span class="dv">2</span>] &lt;-<span class="st"> </span>mod_Surfacesbois_HApoly<span class="op">$</span>coefficients[<span class="dv">2</span>]</span>
+<span id="cb14-7"><a href="#cb14-7"></a>model<span class="op">$</span>sig2[<span class="dv">2</span>] &lt;-<span class="st"> </span>Surfacesbois[<span class="dv">2</span>]<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>model<span class="op">$</span>type[<span class="dv">2</span>] &lt;-<span class="st"> &quot;linear&quot;</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a>model<span class="op">$</span>gamma[<span class="dv">2</span>] &lt;-<span class="st"> </span>Surfacesbois[<span class="dv">1</span>] </span>
+<span id="cb14-10"><a href="#cb14-10"></a>model &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(model)</span>
+<span id="cb14-11"><a href="#cb14-11"></a>model</span></code></pre></div>
 <pre><code>##         beta       sig2   type     gamma
 ## 1 0.01192162 0.01488715 linear 0.6419641
 ## 2 0.19970325 0.12836378 linear 0.8911053</code></pre>
 <p>We define the <em>sampling frame</em> in this way:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>frame <span class="ot">&lt;-</span> <span class="fu">buildFrameDF</span>(swissmunicipalities,</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">id =</span> <span class="st">&quot;COM&quot;</span>,</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">domainvalue =</span> <span class="st">&quot;dom&quot;</span>,</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">X =</span> <span class="fu">c</span>(<span class="st">&quot;POPTOT&quot;</span>, <span class="st">&quot;HApoly&quot;</span>),</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Y =</span> <span class="fu">c</span>(<span class="st">&quot;POPTOT&quot;</span>, <span class="st">&quot;HApoly&quot;</span>))</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>frame<span class="sc">$</span>Airbat <span class="ot">&lt;-</span> swissmunicipalities<span class="sc">$</span>Airbat</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>frame<span class="sc">$</span>Surfacesbois <span class="ot">&lt;-</span> swissmunicipalities<span class="sc">$</span>Surfacesbois</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>frame &lt;-<span class="st"> </span><span class="kw">buildFrameDF</span>(swissmunicipalities,</span>
+<span id="cb16-2"><a href="#cb16-2"></a>                      <span class="dt">id =</span> <span class="st">&quot;COM&quot;</span>,</span>
+<span id="cb16-3"><a href="#cb16-3"></a>                      <span class="dt">domainvalue =</span> <span class="st">&quot;dom&quot;</span>,</span>
+<span id="cb16-4"><a href="#cb16-4"></a>                      <span class="dt">X =</span> <span class="kw">c</span>(<span class="st">&quot;POPTOT&quot;</span>, <span class="st">&quot;HApoly&quot;</span>),</span>
+<span id="cb16-5"><a href="#cb16-5"></a>                      <span class="dt">Y =</span> <span class="kw">c</span>(<span class="st">&quot;POPTOT&quot;</span>, <span class="st">&quot;HApoly&quot;</span>))</span>
+<span id="cb16-6"><a href="#cb16-6"></a>frame<span class="op">$</span>Airbat &lt;-<span class="st"> </span>swissmunicipalities<span class="op">$</span>Airbat</span>
+<span id="cb16-7"><a href="#cb16-7"></a>frame<span class="op">$</span>Surfacesbois &lt;-<span class="st"> </span>swissmunicipalities<span class="op">$</span>Surfacesbois</span></code></pre></div>
 <p>Note that the explanatory variables in the models have been set as both target variables Y and stratification variables X.</p>
 <p>(Since in this exercise the true values of the variables of interest are known for each unit of the population, they have been included in the frame in order to allow a performance evaluation in the next step. It is quite clear that this knowledge is not available in real cases.)</p>
 <p>We set 5% precision constraint on both variables:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cv <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">list</span>(<span class="at">DOM=</span><span class="fu">rep</span>(<span class="st">&quot;DOM1&quot;</span>,<span class="dv">1</span>),</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">CV1=</span><span class="fu">rep</span>(<span class="fl">0.05</span>,<span class="dv">1</span>),</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">CV2=</span><span class="fu">rep</span>(<span class="fl">0.05</span>,<span class="dv">1</span>),</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">domainvalue=</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">1</span>)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                    ))</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>cv</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>cv &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">list</span>(<span class="dt">DOM=</span><span class="kw">rep</span>(<span class="st">&quot;DOM1&quot;</span>,<span class="dv">1</span>),</span>
+<span id="cb17-2"><a href="#cb17-2"></a>                         <span class="dt">CV1=</span><span class="kw">rep</span>(<span class="fl">0.05</span>,<span class="dv">1</span>),</span>
+<span id="cb17-3"><a href="#cb17-3"></a>                         <span class="dt">CV2=</span><span class="kw">rep</span>(<span class="fl">0.05</span>,<span class="dv">1</span>),</span>
+<span id="cb17-4"><a href="#cb17-4"></a>                         <span class="dt">domainvalue=</span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">1</span>)</span>
+<span id="cb17-5"><a href="#cb17-5"></a>                    ))</span>
+<span id="cb17-6"><a href="#cb17-6"></a>cv</span></code></pre></div>
 <pre><code>##    DOM  CV1  CV2 domainvalue
 ## 1 DOM1 0.05 0.05           1</code></pre>
 <p>We can now proceed with the optimization step:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>solution <span class="ot">&lt;-</span> <span class="fu">optimStrata</span>(</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;continuous&quot;</span>,</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">errors =</span> cv , </span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">framesamp =</span> frame, </span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> model,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">iter =</span> <span class="dv">25</span>, </span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">pops =</span> <span class="dv">20</span>, </span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">nStrata =</span> <span class="dv">5</span>)</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co"># *** Domain :  1   1</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  Number of strata :  2896</span></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co"># GA Settings</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   Population size       = 20</span></span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   Number of Generations = 25</span></span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   Elitism               = 4</span></span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   Mutation Chance       = 0.111111111111111</span></span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Sample cost:  295.1979</span></span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Number of strata:  5</span></span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Sample size :  296</span></span>
-<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Number of strata :  5</span></span>
-<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb19-2"><a href="#cb19-2"></a>solution &lt;-<span class="st"> </span><span class="kw">optimStrata</span>(</span>
+<span id="cb19-3"><a href="#cb19-3"></a>    <span class="dt">method =</span> <span class="st">&quot;continuous&quot;</span>,</span>
+<span id="cb19-4"><a href="#cb19-4"></a>    <span class="dt">errors =</span> cv , </span>
+<span id="cb19-5"><a href="#cb19-5"></a>    <span class="dt">framesamp =</span> frame, </span>
+<span id="cb19-6"><a href="#cb19-6"></a>    <span class="dt">model =</span> model,</span>
+<span id="cb19-7"><a href="#cb19-7"></a>    <span class="dt">iter =</span> <span class="dv">25</span>, </span>
+<span id="cb19-8"><a href="#cb19-8"></a>    <span class="dt">pops =</span> <span class="dv">20</span>, </span>
+<span id="cb19-9"><a href="#cb19-9"></a>    <span class="dt">parallel =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb19-10"><a href="#cb19-10"></a>    <span class="dt">nStrata =</span> <span class="dv">5</span>)</span>
+<span id="cb19-11"><a href="#cb19-11"></a></span>
+<span id="cb19-12"><a href="#cb19-12"></a><span class="co"># *** Domain :  1   1</span></span>
+<span id="cb19-13"><a href="#cb19-13"></a><span class="co">#  Number of strata :  2896</span></span>
+<span id="cb19-14"><a href="#cb19-14"></a><span class="co"># GA Settings</span></span>
+<span id="cb19-15"><a href="#cb19-15"></a><span class="co">#   Population size       = 20</span></span>
+<span id="cb19-16"><a href="#cb19-16"></a><span class="co">#   Number of Generations = 25</span></span>
+<span id="cb19-17"><a href="#cb19-17"></a><span class="co">#   Elitism               = 4</span></span>
+<span id="cb19-18"><a href="#cb19-18"></a><span class="co">#   Mutation Chance       = 0.111111111111111</span></span>
+<span id="cb19-19"><a href="#cb19-19"></a><span class="co"># </span></span>
+<span id="cb19-20"><a href="#cb19-20"></a><span class="co"># </span></span>
+<span id="cb19-21"><a href="#cb19-21"></a><span class="co"># </span></span>
+<span id="cb19-22"><a href="#cb19-22"></a><span class="co">#  *** Sample cost:  295.1979</span></span>
+<span id="cb19-23"><a href="#cb19-23"></a><span class="co">#  *** Number of strata:  5</span></span>
+<span id="cb19-24"><a href="#cb19-24"></a><span class="co">#  *** Sample size :  296</span></span>
+<span id="cb19-25"><a href="#cb19-25"></a><span class="co">#  *** Number of strata :  5</span></span>
+<span id="cb19-26"><a href="#cb19-26"></a><span class="co"># ---------------------------</span></span></code></pre></div>
 <p><img src="data:image/png;base64,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" /></p>
 <p>What about the expected CVs? We attribute the real values of Airbat and Surfacesbois to the Ys of obtained <em>framenew</em> and run the simulation:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>outstrata <span class="ot">&lt;-</span> solution<span class="sc">$</span>aggr_strata</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>framenew <span class="ot">&lt;-</span> solution<span class="sc">$</span>framenew</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>framenew<span class="sc">$</span>Y3 <span class="ot">&lt;-</span> framenew<span class="sc">$</span>AIRBAT</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>framenew<span class="sc">$</span>Y4 <span class="ot">&lt;-</span> framenew<span class="sc">$</span>SURFACESBOIS</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">evalSolution</span>(framenew, outstrata, <span class="dv">500</span>, <span class="at">progress =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>results<span class="sc">$</span>coeff_var</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">#      CV1    CV2    CV3    CV4  dom</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 0.0369 0.0241 0.0352 0.0366 DOM1</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>outstrata &lt;-<span class="st"> </span>solution<span class="op">$</span>aggr_strata</span>
+<span id="cb20-2"><a href="#cb20-2"></a>framenew &lt;-<span class="st"> </span>solution<span class="op">$</span>framenew</span>
+<span id="cb20-3"><a href="#cb20-3"></a>framenew<span class="op">$</span>Y3 &lt;-<span class="st"> </span>framenew<span class="op">$</span>AIRBAT</span>
+<span id="cb20-4"><a href="#cb20-4"></a>framenew<span class="op">$</span>Y4 &lt;-<span class="st"> </span>framenew<span class="op">$</span>SURFACESBOIS</span>
+<span id="cb20-5"><a href="#cb20-5"></a>results &lt;-<span class="st"> </span><span class="kw">evalSolution</span>(framenew, outstrata, <span class="dv">500</span>, <span class="dt">progress =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb20-6"><a href="#cb20-6"></a>results<span class="op">$</span>coeff_var</span>
+<span id="cb20-7"><a href="#cb20-7"></a><span class="co">#      CV1    CV2    CV3    CV4  dom</span></span>
+<span id="cb20-8"><a href="#cb20-8"></a><span class="co"># 1 0.0369 0.0241 0.0352 0.0366 DOM1</span></span></code></pre></div>
 <p>The first two CVs pertain to the proxy available variables, namely <em>total population</em> and <em>total area</em>, while the last two regard respectively <em>buildings area</em> and <em>woods area</em>: they are more than compliant with the precision constraint of 5%.</p>
 <p>What if we did not use the information contained in models? We run the same optimization step without indication of <em>model</em> parameter:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>solution <span class="ot">&lt;-</span> <span class="fu">optimStrata</span>(</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;continuous&quot;</span>,</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">errors =</span> cv , </span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">framesamp =</span> frame, </span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="cn">NULL</span>,</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">iter =</span> <span class="dv">25</span>, </span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">pops =</span> <span class="dv">20</span>, </span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">parallel =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">nStrata =</span> <span class="dv">5</span>)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Domain :  1   1</span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  Number of strata :  2896</span></span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="co"># GA Settings</span></span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   Population size       = 20</span></span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   Number of Generations = 25</span></span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   Elitism               = 4</span></span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   Mutation Chance       = 0.111111111111111</span></span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Sample cost:  151.9848</span></span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Number of strata:  5</span></span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Sample size :  152</span></span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="co">#  *** Number of strata :  5</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb21-2"><a href="#cb21-2"></a>solution &lt;-<span class="st"> </span><span class="kw">optimStrata</span>(</span>
+<span id="cb21-3"><a href="#cb21-3"></a>    <span class="dt">method =</span> <span class="st">&quot;continuous&quot;</span>,</span>
+<span id="cb21-4"><a href="#cb21-4"></a>    <span class="dt">errors =</span> cv , </span>
+<span id="cb21-5"><a href="#cb21-5"></a>    <span class="dt">framesamp =</span> frame, </span>
+<span id="cb21-6"><a href="#cb21-6"></a>    <span class="dt">model =</span> <span class="ot">NULL</span>,</span>
+<span id="cb21-7"><a href="#cb21-7"></a>    <span class="dt">iter =</span> <span class="dv">25</span>, </span>
+<span id="cb21-8"><a href="#cb21-8"></a>    <span class="dt">pops =</span> <span class="dv">20</span>, </span>
+<span id="cb21-9"><a href="#cb21-9"></a>    <span class="dt">parallel =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb21-10"><a href="#cb21-10"></a>    <span class="dt">nStrata =</span> <span class="dv">5</span>)</span>
+<span id="cb21-11"><a href="#cb21-11"></a></span>
+<span id="cb21-12"><a href="#cb21-12"></a><span class="co">#  *** Domain :  1   1</span></span>
+<span id="cb21-13"><a href="#cb21-13"></a><span class="co">#  Number of strata :  2896</span></span>
+<span id="cb21-14"><a href="#cb21-14"></a><span class="co"># GA Settings</span></span>
+<span id="cb21-15"><a href="#cb21-15"></a><span class="co">#   Population size       = 20</span></span>
+<span id="cb21-16"><a href="#cb21-16"></a><span class="co">#   Number of Generations = 25</span></span>
+<span id="cb21-17"><a href="#cb21-17"></a><span class="co">#   Elitism               = 4</span></span>
+<span id="cb21-18"><a href="#cb21-18"></a><span class="co">#   Mutation Chance       = 0.111111111111111</span></span>
+<span id="cb21-19"><a href="#cb21-19"></a><span class="co"># </span></span>
+<span id="cb21-20"><a href="#cb21-20"></a><span class="co"># </span></span>
+<span id="cb21-21"><a href="#cb21-21"></a><span class="co"># </span></span>
+<span id="cb21-22"><a href="#cb21-22"></a><span class="co">#  *** Sample cost:  151.9848</span></span>
+<span id="cb21-23"><a href="#cb21-23"></a><span class="co">#  *** Number of strata:  5</span></span>
+<span id="cb21-24"><a href="#cb21-24"></a><span class="co">#  *** Sample size :  152</span></span>
+<span id="cb21-25"><a href="#cb21-25"></a><span class="co">#  *** Number of strata :  5</span></span></code></pre></div>
 <p><img src="data:image/png;base64,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" /></p>
 <p>We obtain a solution that requires a much lower sample size to satisfy the precision constraints on the Ys. But as we did not consider the anticipated variance on the real target variables, we pay a price in terms of expected CVs on them:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>outstrata <span class="ot">&lt;-</span> solution<span class="sc">$</span>aggr_strata</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>framenew <span class="ot">&lt;-</span> solution<span class="sc">$</span>framenew</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>framenew<span class="sc">$</span>Y3 <span class="ot">&lt;-</span> framenew<span class="sc">$</span>AIRBAT</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>framenew<span class="sc">$</span>Y4 <span class="ot">&lt;-</span> framenew<span class="sc">$</span>SURFACESBOIS</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">evalSolution</span>(framenew, outstrata, <span class="dv">500</span>, <span class="at">progress =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>results<span class="sc">$</span>coeff_var</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">#      CV1    CV2    CV3    CV4  dom</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 0.0501 0.0491 0.0502 0.0686 DOM1</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>outstrata &lt;-<span class="st"> </span>solution<span class="op">$</span>aggr_strata</span>
+<span id="cb22-2"><a href="#cb22-2"></a>framenew &lt;-<span class="st"> </span>solution<span class="op">$</span>framenew</span>
+<span id="cb22-3"><a href="#cb22-3"></a>framenew<span class="op">$</span>Y3 &lt;-<span class="st"> </span>framenew<span class="op">$</span>AIRBAT</span>
+<span id="cb22-4"><a href="#cb22-4"></a>framenew<span class="op">$</span>Y4 &lt;-<span class="st"> </span>framenew<span class="op">$</span>SURFACESBOIS</span>
+<span id="cb22-5"><a href="#cb22-5"></a>results &lt;-<span class="st"> </span><span class="kw">evalSolution</span>(framenew, outstrata, <span class="dv">500</span>, <span class="dt">progress =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb22-6"><a href="#cb22-6"></a>results<span class="op">$</span>coeff_var</span>
+<span id="cb22-7"><a href="#cb22-7"></a><span class="co">#      CV1    CV2    CV3    CV4  dom</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a><span class="co"># 1 0.0501 0.0491 0.0502 0.0686 DOM1</span></span></code></pre></div>
 <p>Norwithstanding the non inclusion of the models in the optimization step, the CV related to <em>buildings area</em> is still inside the limit of the 5%: this is most likely due to the high correlation between <em>buildings area</em> and <em>total population</em>. While the lower correlation between the <em>total area</em> and <em>woods area</em> determines the non compliance of the expected CV of <em>woods area</em> that was instead guaranted using the related model.</p>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-baillargeon2014" class="csl-entry">
-Baillargeon, Sophie, and Louis-Paul Rivest. 2014. <em>Stratification: Univariate Stratification of Survey Populations</em>. <a href="https://CRAN.R-project.org/package=stratification">https://CRAN.R-project.org/package=stratification</a>.
+<div id="refs" class="references hanging-indent">
+<div id="ref-baillargeon2014">
+<p>Baillargeon, Sophie, and Louis-Paul Rivest. 2014. <em>Stratification: Univariate Stratification of Survey Populations</em>. <a href="https://CRAN.R-project.org/package=stratification">https://CRAN.R-project.org/package=stratification</a>.</p>
 </div>
-<div id="ref-henry2006" class="csl-entry">
-Henry, K., and R. Valliant. 2006. <span>“<span class="nocase">Comparing Strategies to Estimate a Measure of Heteroscedasticity</span>.”</span>
+<div id="ref-henry2006">
+<p>Henry, K., and R. Valliant. 2006. “Comparing Strategies to Estimate a Measure of Heteroscedasticity.”</p>
 </div>
-<div id="ref-knaub2019" class="csl-entry">
-Knaub, J. R. 2019. <span>“<span class="nocase">Estimating the Coefficient of Heteroscedasticity</span>.”</span>
+<div id="ref-knaub2019">
+<p>Knaub, J. R. 2019. “Estimating the Coefficient of Heteroscedasticity.”</p>
 </div>
 </div>
 </div>

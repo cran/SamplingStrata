@@ -1,6 +1,6 @@
-8f59c2a8cbb51493c31285c552a9f3f5 *DESCRIPTION
-16d1f88a514bb6f26319b983e8385247 *NAMESPACE
-40a7672f8ddc8fd68397fde4c634b9bd *NEWS
+0ce4f983b6a94068fd316eef5b5dc8c5 *DESCRIPTION
+2508559ca9a430b8d15cc4cb4248e603 *NAMESPACE
+9e75107d112369e2bbe28e01055087fb *NEWS
 b7cba927697bd098972fd9f905425baa *R/Bethel.r
 6da0934b366b443a5be7fc5faa752ffb *R/KmeansSolution.R
 9821a12faa7215274a1e4bbdc1a127ed *R/KmeansSolution2.R
@@ -35,7 +35,7 @@ ff830c7a8f8a4d72022ba49a3f8a43d0 *R/prepareSuggestion.R
 9dfab3b05c80bf8a697cee3a16f0efb2 *R/selectSample.R
 03c52133adcc7b5441868add6cd6fe82 *R/selectSampleSpatial.R
 a5a0a2c84afdc70f32c33fc642bc12cd *R/selectSampleSytematic.R
-bfd5256731f8bbced9597f55a10bba10 *R/strataGenalg.R
+025d387dce29c1a8c0823ec1afe87e4b *R/strataGenalg.R
 07233601e7683818abfa645a2367ed41 *R/strataGenalg2.R
 23d5c544843bac958e3aad9f57d0b168 *R/strataGenalgSpatial.R
 4b19eeadcae770d3d90debad9f20ddf4 *R/summary.rbga.R
@@ -43,8 +43,8 @@ bfd5256731f8bbced9597f55a10bba10 *R/strataGenalg.R
 f2a92e677e8981d1d0e71a41187de5c9 *R/tuneParameters.r
 94bbd310194df7d40be1425618be9d0c *R/updateFrame.R
 9473d447e15f31d28239e5b3e6753432 *R/updateStrata.r
-560d15f21ac984232da606a3a271e564 *R/var.bin.R
-c881da7277e1d2f1e7489b8cfa5f41be *build/vignette.rds
+17af55ef853e10300792985d97ce68ef *R/var.bin.R
+faa76421f7284fd60821cb0719777f32 *build/vignette.rds
 6d7e6f1b52ce98e794964b3cf6172644 *data/errors.rda
 50b321c22d686c6bf1c92a50b7c467ed *data/nations.rda
 2565c2ec945cad945769660febb5a1b8 *data/strata.rda
@@ -55,14 +55,14 @@ b2102f9bdf489f0b2dbb057d4fd9fb91 *data/swissstrata.rda
 0d60df933f2184c1c766b287efde8462 *inst/CITATION
 c984e4fdef0b05fdc825c479b1cab511 *inst/doc/SamplingStrata.R
 c2aac28d83daa932522f9614b90937f4 *inst/doc/SamplingStrata.Rmd
-be89b31114ee9e1e18645e0b24edcf9b *inst/doc/SamplingStrata.html
+9740ff232e6d7468ee059453248777b2 *inst/doc/SamplingStrata.html
 3d119355dbf79bcd150c6e2b518be107 *inst/doc/SamplingStrata_cheatsheet.pdf
 acdafcc3abb781a79c11ec05e565b2b3 *inst/doc/models.R
 060cbd4d879ca27325fdc9acc6d23305 *inst/doc/models.Rmd
-784390c77b8fd30fc0b6d4e040576347 *inst/doc/models.html
+fc0696418aee68d4695410a81aa7b90a *inst/doc/models.html
 34dee7e7724247d53b474a02e0bb682b *inst/doc/spatial.R
 9ec1d430ffab10f3e74cac17f183e4b2 *inst/doc/spatial.Rmd
-c1f2280fa09e0dffc2bb12495b5dc320 *inst/doc/spatial.html
+501b0f7cc02f8c32c691ad5d6b32dbdb *inst/doc/spatial.html
 f23807c1a880aae5909d1f8dab9fdfad *inst/figures/SamplingStrata.png
 ca1346c93d7d256e93c9438209b149c7 *man/KmeansSolution.Rd
 27574307a2346e6da65b8cf4c9ffaca1 *man/KmeansSolution2.Rd
