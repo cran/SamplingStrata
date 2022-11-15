@@ -2,8 +2,8 @@ Package: SamplingStrata
 Type: Package
 Title: Optimal Stratification of Sampling Frames for Multipurpose
         Sampling Surveys
-Version: 1.5-3
-Date: 2022-08-27
+Version: 1.5-4
+Date: 2022-11-11
 Author: Giulio Barcaroli, Marco Ballin, Hanjo Odendaal, Daniela Pagliuca, Egon Willighagen,
 		Diego Zardetto
 Maintainer: Giulio Barcaroli <gbarcaroli@gmail.com>
@@ -13,7 +13,7 @@ LazyLoad: yes
 Depends: R (>= 3.5.0), memoise, doParallel, pbapply, SamplingBigData,
         glue, methods
 NeedsCompilation: no
-Packaged: 2022-08-28 20:25:34 UTC; UTENTE
+Packaged: 2022-11-14 10:41:01 UTC; Giulio
 Suggests: knitr, rmarkdown, formattable
 VignetteBuilder: knitr
 URL: https://barcaroli.github.io/SamplingStrata/,
@@ -21,4 +21,4 @@ URL: https://barcaroli.github.io/SamplingStrata/,
 BugReports: https://github.com/barcaroli/SamplingStrata/issues
 RoxygenNote: 6.1.1
 Repository: CRAN
-Date/Publication: 2022-08-28 20:50:10 UTC
+Date/Publication: 2022-11-15 21:50:06 UTC
