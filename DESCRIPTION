@@ -2,23 +2,34 @@ Package: SamplingStrata
 Type: Package
 Title: Optimal Stratification of Sampling Frames for Multipurpose
         Sampling Surveys
-Version: 1.5-4
-Date: 2022-11-11
-Author: Giulio Barcaroli, Marco Ballin, Hanjo Odendaal, Daniela Pagliuca, Egon Willighagen,
-		Diego Zardetto
+Version: 1.5-5
+Date: 2025-09-30
+Author: Giulio Barcaroli [aut, cre],
+  Marco Ballin [aut],
+  Hanjo Odendaal [aut],
+  Daniela Pagliuca [aut],
+  Egon Willighagen [aut],
+  Diego Zardetto [aut]
 Maintainer: Giulio Barcaroli <gbarcaroli@gmail.com>
-Description: In the field of stratified sampling design, this package offers an approach for the determination of the best stratification of a sampling frame, the one that ensures the minimum sample cost under the condition to satisfy precision constraints in a multivariate and multidomain case. This approach is based on the use of the genetic algorithm: each solution (i.e. a particular partition in strata of the sampling frame) is considered as an individual in a population; the fitness of all individuals is evaluated applying the Bethel-Chromy algorithm to calculate the sampling size satisfying precision constraints on the target estimates. Functions in the package allows to: (a) analyse the obtained results of the optimisation step; (b) assign the new strata labels to the sampling frame; (c) select a sample from the new frame accordingly to the best allocation. Functions for the execution of the genetic algorithm are a modified version of the functions in the 'genalg' package. M.Ballin, G.Barcaroli (2020) <arXiv:2004.09366> "R package SamplingStrata: new developments and extension to Spatial Sampling".  
+Authors@R: 
+    c(person("Giulio", "Barcaroli", role = c("aut", "cre"), email = "gbarcaroli@gmail.com"),
+      person("Marco", "Ballin", role = "aut"),
+      person("Hanjo", "Odendaal", role = "aut"),
+      person("Daniela", "Pagliuca", role = "aut"),
+      person("Egon", "Willighagen", role = "aut"),
+      person("Diego", "Zardetto", role = "aut"))
+Description: Tools for the optimization of stratified sampling design. It determines a stratification of a sampling frame that minimizes sample cost while satisfying precision constraints in a multivariate and multidomain context. The approach relies on a genetic algorithm; each candidate partition of the frame is an individual whose fitness is evaluated via the Bethel-Chromy allocation to meet target precisions. Functions support analysis of optimization results, labeling of the frame with new strata, and drawing a sample according to the optimal allocation. Algorithmic components adapt code from the 'genalg' package. See M. Ballin and G. Barcaroli (2020) "R package SamplingStrata: new developments and extension to Spatial Sampling" <doi:10.48550/arXiv.2004.09366>.
 License: GPL (>= 2)
-LazyLoad: yes
-Depends: R (>= 3.5.0), memoise, doParallel, pbapply, SamplingBigData,
-        glue, methods
-NeedsCompilation: no
-Packaged: 2022-11-14 10:41:01 UTC; Giulio
+Depends: R (>= 3.5.0)
+Imports: memoise, doParallel, pbapply, SamplingBigData, glue, methods
 Suggests: knitr, rmarkdown, formattable
 VignetteBuilder: knitr
 URL: https://barcaroli.github.io/SamplingStrata/,
         https://github.com/barcaroli/SamplingStrata/
 BugReports: https://github.com/barcaroli/SamplingStrata/issues
+Encoding: UTF-8
 RoxygenNote: 6.1.1
+NeedsCompilation: no
+Packaged: 2025-10-08 09:20:57 UTC; Giulio
 Repository: CRAN
-Date/Publication: 2022-11-15 21:50:06 UTC
+Date/Publication: 2025-10-08 10:30:13 UTC
